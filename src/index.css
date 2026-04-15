@@ -1,0 +1,51 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme {
+  --font-sans: "Helvetica Neue", Arial, "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", serif;
+  
+  --color-gold-50: #fdfcf6;
+  --color-gold-100: #f9f6e6;
+  --color-gold-200: #f2ebc2;
+  --color-gold-300: #e7d891;
+  --color-gold-400: #d9bf5f;
+  --color-gold-500: #D4AF37;
+  --color-gold-600: #AA8A2E;
+  --color-gold-700: #966d25;
+  --color-gold-800: #7c5823;
+  --color-gold-900: #694a21;
+  --color-gold-950: #3c280f;
+
+  --color-black: #0A0A0A;
+  --color-gray-dark: #1A1A1A;
+  --color-text-muted: #8E8E8E;
+}
+
+@layer base {
+  body {
+    @apply bg-black text-white antialiased selection:bg-gold-500/30;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10;
+  }
+  .gold-gradient {
+    background: linear-gradient(135deg, #D4AF37 0%, #F2EB91 50%, #D4AF37 100%);
+  }
+  .gold-text {
+    background: linear-gradient(to right, #FFFFFF, #D4AF37);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .sidebar-border {
+    border-right: 1px solid rgba(212, 175, 55, 0.2);
+  }
+  .panel-border {
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+}
