@@ -22,8 +22,8 @@ import {
   Phone,
   Send
 } from 'lucide-react';
-import { MOCK_PEOPLE, MOCK_PROFESSIONALS, MOCK_EVENTS } from './data';
-import { Island, Person, Professional, Event as ComEvent } from './types';
+import { MOCK_PEOPLE, MOCK_PROFESSIONALS, MOCK_EVENTS, MOCK_CITIES, MOCK_ASSOCIATIONS, MOCK_ADS } from './data';
+import { Island, Person, Professional, Event as ComEvent, City, Association, Ad } from './types';
 
 // --- Components ---
 
@@ -116,7 +116,60 @@ const Select = ({ label, options, ...props }: { label: string; options: string[]
 
 // --- Sections ---
 
-const HomeSection = ({ onNavigate }: { onNavigate: (view: string) => void }) => (
+const AdsCarousel = () => {
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Duplicate ads for infinite scroll effect
+  const ads = [...MOCK_ADS, ...MOCK_ADS, ...MOCK_ADS];
+
+  return (
+    <div className="w-full overflow-hidden py-8 relative">
+      <div className="absolute left-0 top-0 bottom-0 w-20 bg-linear-to-r from-black to-transparent z-10" />
+      <div className="absolute right-0 top-0 bottom-0 w-20 bg-linear-to-l from-black to-transparent z-10" />
+      
+      <motion.div 
+        className="flex gap-6 w-max"
+        animate={isPaused ? {} : { x: ["0%", "-33.33%"] }}
+        transition={{ 
+          duration: 30, 
+          repeat: Infinity, 
+          ease: "linear" 
+        }}
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={() => setIsPaused(true)}
+        onTouchEnd={() => setIsPaused(false)}
+      >
+        {ads.map((ad, idx) => (
+          <div 
+            key={`${ad.id}-${idx}`}
+            onClick={() => ad.link !== '#' && window.open(ad.link, '_blank')}
+            className="w-48 h-64 bg-gray-dark rounded-2xl panel-border overflow-hidden relative group cursor-pointer hover:shadow-2xl hover:shadow-gold-500/10 transition-all duration-300 shrink-0"
+          >
+            {/* Diagonal Ribbon */}
+            <div className="absolute top-3 -right-8 bg-gold-500 text-black text-[8px] font-black py-1 px-10 rotate-45 z-20 shadow-lg uppercase tracking-tighter">
+              Sponsorisé
+            </div>
+
+            <div className="h-2/3 overflow-hidden">
+              <img src={ad.image} alt={ad.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
+            </div>
+            
+            <div className="p-4 bg-linear-to-b from-gray-dark/80 to-gray-dark">
+              <h4 className="text-sm font-bold text-white group-hover:text-gold-500 transition-colors line-clamp-1">{ad.title}</h4>
+              <p className="text-[10px] text-text-muted mt-1 line-clamp-1">{ad.subtitle}</p>
+              <div className="mt-2 flex items-center text-[8px] font-bold text-gold-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                Visiter <ChevronRight size={10} className="ml-1" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+};
+
+const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: string; id: string }) => void }) => (
   <div className="space-y-10 pb-24">
     {/* Hero */}
     <header className="hero flex flex-col items-center text-center space-y-6">
@@ -139,9 +192,11 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string) => void }) => 
       </div>
     </header>
 
-    <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
-      {/* Left Panel: Events & Search */}
-      <div className="space-y-8">
+    {/* Sponsored Ads Carousel */}
+    <AdsCarousel />
+
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="lg:col-span-2 space-y-8">
         <Panel title="prochains événements" action={<span className="bg-gold-500/10 text-gold-500 px-3 py-1 rounded-full text-[11px] font-bold uppercase cursor-pointer hover:bg-gold-500/20 transition-colors" onClick={() => onNavigate('events')}>Voir tout</span>}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {MOCK_EVENTS.slice(0, 4).map(event => (
@@ -155,59 +210,59 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string) => void }) => 
           </div>
         </Panel>
 
-        <Panel title="Trouver un membre">
-          <div className="space-y-6">
-            <div className="bg-black border border-gold-500/30 rounded-full px-5 py-4 flex items-center gap-3 text-text-muted">
-              <Search size={18} className="text-gold-500" />
-              <input type="text" className="bg-transparent border-none text-white w-full outline-none text-sm placeholder:text-white/20" placeholder="Rechercher par ville, île ou village..." />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <Panel title="Trouver une ville" className="h-full">
+            <div className="space-y-4">
+              <div className="bg-black border border-gold-500/30 rounded-full px-5 py-3 flex items-center gap-3 text-text-muted">
+                <MapPin size={16} className="text-gold-500" />
+                <input type="text" className="bg-transparent border-none text-white w-full outline-none text-xs placeholder:text-white/20" placeholder="Ville (ex: Moroni)..." onClick={() => onNavigate('cities')} readOnly />
+              </div>
+              <Button variant="primary" className="w-full py-2.5 text-xs" onClick={() => onNavigate('cities')}>Explorer</Button>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button variant="primary" className="flex-1" onClick={() => onNavigate('search')}>Lancer la recherche</Button>
-              <Button variant="outline" className="flex-1" onClick={() => onNavigate('search')}>Filtres Avancés</Button>
+          </Panel>
+
+          <Panel title="Trouver un membre" className="h-full">
+            <div className="space-y-4">
+              <div className="bg-black border border-gold-500/30 rounded-full px-5 py-3 flex items-center gap-3 text-text-muted">
+                <Search size={16} className="text-gold-500" />
+                <input type="text" className="bg-transparent border-none text-white w-full outline-none text-xs placeholder:text-white/20" placeholder="Nom, ville, île..." onClick={() => onNavigate('search')} readOnly />
+              </div>
+              <Button variant="primary" className="w-full py-2.5 text-xs" onClick={() => onNavigate('search')}>Rechercher</Button>
             </div>
-          </div>
-        </Panel>
+          </Panel>
+        </div>
 
         <Panel title="Trouver un professionnel">
-          <div className="space-y-6">
-            <div className="bg-black border border-gold-500/30 rounded-full px-5 py-4 flex items-center gap-3 text-text-muted">
-              <Briefcase size={18} className="text-gold-500" />
-              <input type="text" className="bg-transparent border-none text-white w-full outline-none text-sm placeholder:text-white/20" placeholder="Restaurant, coiffeur, photographe..." />
+          <div className="space-y-4">
+            <div className="bg-black border border-gold-500/30 rounded-full px-5 py-3 flex items-center gap-3 text-text-muted">
+              <Briefcase size={16} className="text-gold-500" />
+              <input type="text" className="bg-transparent border-none text-white w-full outline-none text-xs placeholder:text-white/20" placeholder="Restaurant, coiffeur, photographe..." onClick={() => onNavigate('search')} readOnly />
             </div>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button variant="primary" className="flex-1" onClick={() => onNavigate('search')}>Trouver un pro</Button>
-              <Button variant="outline" className="flex-1" onClick={() => onNavigate('search')}>Voir les catégories</Button>
+            <div className="flex gap-3">
+              <Button variant="primary" className="flex-1 py-2.5 text-xs" onClick={() => onNavigate('search')}>Trouver un pro</Button>
+              <Button variant="outline" className="flex-1 py-2.5 text-xs" onClick={() => onNavigate('search')}>Catégories</Button>
             </div>
           </div>
         </Panel>
       </div>
 
-      {/* Right Panel: Stats & Join */}
       <div className="space-y-8">
-        <Panel title="Impact Communautaire">
-          <div className="space-y-4">
-            <div className="bg-white/5 rounded-[20px] p-5 text-center border border-white/5">
-              <div className="text-3xl font-bold text-gold-500">10</div>
-              <div className="text-[10px] text-text-muted uppercase tracking-widest mt-1">Membres Inscrits</div>
-            </div>
-            <div className="bg-white/5 rounded-[20px] p-5 text-center border border-white/5">
-              <div className="text-3xl font-bold text-gold-500">10</div>
-              <div className="text-[10px] text-text-muted uppercase tracking-widest mt-1">Professionnels Certifiés</div>
-            </div>
-            <div className="bg-white/5 rounded-[20px] p-5 text-center border border-white/5">
-              <div className="text-3xl font-bold text-gold-500">2</div>
-              <div className="text-[10px] text-text-muted uppercase tracking-widest mt-1">Évènements</div>
-            </div>
-          </div>
-        </Panel>
-
-        <Panel title="Devenir Membre">
+        <Panel title="Devenir Membre" className="bg-linear-to-br from-gold-500/10 to-transparent border-gold-500/20">
           <p className="text-sm text-text-muted mb-6 leading-relaxed">
             Enregistrez-vous dès maintenant pour être visible dans votre communauté et être informé des actualités de votre île.
           </p>
-          <Button variant="primary" className="w-full" onClick={() => onNavigate('register')}>
+          <Button variant="primary" className="w-full shadow-gold-500/20" onClick={() => onNavigate('register')}>
             S'enregistrer via WhatsApp
           </Button>
+        </Panel>
+
+        <Panel title="Contact Direct">
+          <div className="space-y-4">
+            <p className="text-xs text-text-muted">Une question ? Un partenariat ? Contactez-nous directement.</p>
+            <Button variant="outline" className="w-full" onClick={() => window.open('https://wa.me/33757828250', '_blank')}>
+              <MessageCircle size={18} /> WhatsApp Support
+            </Button>
+          </div>
         </Panel>
       </div>
     </div>
@@ -716,6 +771,200 @@ const SearchSection = () => {
 
 
 
+const CitiesSection = ({ onNavigate }: { onNavigate: (cityId: string) => void }) => {
+  const [query, setQuery] = useState('');
+
+  const results = useMemo(() => {
+    return MOCK_CITIES.filter(city => 
+      city.name.toLowerCase().includes(query.toLowerCase())
+    );
+  }, [query]);
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-10 pb-32">
+      <header className="hero space-y-2 text-center">
+        <h1 className="text-4xl font-bold gold-text tracking-tight">Villes des Comores</h1>
+        <p className="text-text-muted text-lg">Découvrez les villes et villages de l'archipel.</p>
+      </header>
+
+      <Panel>
+        <div className="relative">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gold-500" size={18} />
+          <input 
+            type="text"
+            placeholder="Rechercher une ville (ex: Moroni, Mutsamudu...)"
+            className="w-full bg-black border border-gold-500/30 rounded-full pl-12 pr-5 py-4 text-white focus:outline-none focus:border-gold-500 transition-colors text-sm"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+      </Panel>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {results.map(city => (
+          <div 
+            key={city.id} 
+            className="bg-gray-dark rounded-[24px] panel-border overflow-hidden group cursor-pointer hover:shadow-2xl hover:shadow-gold-500/5 transition-all duration-300"
+            onClick={() => onNavigate(city.id)}
+          >
+            <div className="relative h-48 overflow-hidden">
+              <img src={city.image} alt={city.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+              <div className="absolute bottom-4 left-4">
+                <span className="px-3 py-1 rounded-full bg-gold-500 text-black text-[10px] font-bold uppercase tracking-widest">
+                  {city.island}
+                </span>
+              </div>
+            </div>
+            <div className="p-6">
+              <h3 className="text-xl font-bold group-hover:text-gold-500 transition-colors">{city.name}</h3>
+              <p className="text-sm text-white/40 mt-2 line-clamp-2">{city.description}</p>
+              <div className="mt-4 flex items-center text-gold-500 text-xs font-bold uppercase tracking-wider">
+                Explorer la ville <ArrowRight size={14} className="ml-2" />
+              </div>
+            </div>
+          </div>
+        ))}
+        {results.length === 0 && (
+          <div className="col-span-full py-20 text-center bg-gray-dark rounded-[24px] panel-border">
+            <p className="text-text-muted text-lg">Aucune ville trouvée pour "{query}".</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const CityDetailSection = ({ cityId, onBack }: { cityId: string; onBack: () => void }) => {
+  const city = MOCK_CITIES.find(c => c.id === cityId);
+  
+  if (!city) return null;
+
+  const members = MOCK_PEOPLE
+    .filter(p => p.cityComoros === city.name)
+    .sort((a, b) => a.firstName.localeCompare(b.firstName));
+
+  const events = MOCK_EVENTS.filter(e => e.city === city.name);
+  const professionals = MOCK_PROFESSIONALS.filter(p => p.cityComoros === city.name);
+  const associations = MOCK_ASSOCIATIONS.filter(a => a.city === city.name);
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-12 pb-32">
+      <button 
+        onClick={onBack}
+        className="flex items-center gap-2 text-gold-500 hover:text-gold-400 transition-colors font-bold uppercase text-xs tracking-widest"
+      >
+        <X size={16} /> Retour aux villes
+      </button>
+
+      <header className="relative h-[250px] md:h-[400px] rounded-[24px] md:rounded-[32px] overflow-hidden shadow-2xl">
+        <img src={city.image} alt={city.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+        <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent" />
+        <div className="absolute bottom-10 left-10 right-10">
+          <span className="px-4 py-1.5 rounded-full bg-gold-500 text-black text-xs font-bold uppercase tracking-widest mb-4 inline-block">
+            {city.island}
+          </span>
+          <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter">{city.name}</h1>
+          <p className="text-white/70 text-lg max-w-2xl mt-4 leading-relaxed">{city.description}</p>
+        </div>
+      </header>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div className="lg:col-span-2 space-y-12">
+          {/* Members */}
+          <section className="space-y-6">
+            <h2 className="text-2xl font-bold gold-text flex items-center gap-3">
+              <UserPlus size={24} /> Membres de {city.name} ({members.length})
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {members.map(member => (
+                <Card key={member.id} className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-gold-500/10 flex items-center justify-center text-gold-500 font-bold">
+                    {member.firstName[0]}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white">{member.firstName} {member.lastName}</h4>
+                    <p className="text-xs text-text-muted">{member.cityFrance}</p>
+                  </div>
+                </Card>
+              ))}
+              {members.length === 0 && <p className="text-text-muted italic">Aucun membre inscrit pour le moment.</p>}
+            </div>
+          </section>
+
+          {/* Events */}
+          <section className="space-y-6">
+            <h2 className="text-2xl font-bold gold-text flex items-center gap-3">
+              <Calendar size={24} /> Évènements à venir
+            </h2>
+            <div className="space-y-4">
+              {events.map(event => (
+                <div key={event.id} className="bg-white/[0.03] rounded-2xl p-6 panel-border flex gap-6 group">
+                  <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0">
+                    <img src={event.image} alt={event.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  </div>
+                  <div className="space-y-2">
+                    <span className="text-gold-500 text-[10px] font-bold uppercase tracking-widest">{event.date}</span>
+                    <h4 className="font-bold text-lg group-hover:text-gold-500 transition-colors">{event.title}</h4>
+                    <p className="text-sm text-text-muted line-clamp-1">{event.description}</p>
+                  </div>
+                </div>
+              ))}
+              {events.length === 0 && <p className="text-text-muted italic">Aucun évènement prévu prochainement.</p>}
+            </div>
+          </section>
+
+          {/* Associations */}
+          <section className="space-y-6">
+            <h2 className="text-2xl font-bold gold-text flex items-center gap-3">
+              <Globe size={24} /> Associations
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {associations.map(assoc => (
+                <div key={assoc.id} className="bg-white/[0.03] rounded-2xl p-6 panel-border flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-xl bg-white/5 flex items-center justify-center overflow-hidden">
+                    {assoc.logo ? <img src={assoc.logo} alt={assoc.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" /> : <Globe size={32} className="text-gold-500/20" />}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white">{assoc.name}</h4>
+                    <p className="text-xs text-text-muted mt-1">{assoc.description}</p>
+                  </div>
+                </div>
+              ))}
+              {associations.length === 0 && <p className="text-text-muted italic">Aucune association répertoriée.</p>}
+            </div>
+          </section>
+        </div>
+
+        <div className="space-y-10">
+          {/* Professionals */}
+          <section className="space-y-6">
+            <h2 className="text-2xl font-bold gold-text flex items-center gap-3">
+              <Briefcase size={24} /> Professionnels
+            </h2>
+            <div className="space-y-4">
+              {professionals.map(pro => (
+                <div key={pro.id} className="bg-white/[0.03] rounded-2xl p-4 panel-border group cursor-pointer hover:bg-white/[0.06] transition-all">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0">
+                      <img src={pro.image} alt={pro.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white group-hover:text-gold-500 transition-colors">{pro.name}</h4>
+                      <span className="text-[10px] font-bold uppercase text-gold-500 tracking-widest">{pro.category}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {professionals.length === 0 && <p className="text-text-muted italic">Aucun professionnel répertorié.</p>}
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const EventsSection = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-10 pb-32">
@@ -759,7 +1008,7 @@ const EventsSection = () => {
 // --- Main App ---
 
 export default function App() {
-  const [view, setView] = useState('home');
+  const [view, setView] = useState<string | { type: string; id: string }>('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Scroll to top on view change
@@ -770,6 +1019,7 @@ export default function App() {
 
   const navItems = [
     { id: 'home', label: 'Accueil', icon: Home },
+    { id: 'cities', label: 'Villes', icon: MapPin },
     { id: 'search', label: 'Recherche', icon: Search },
     { id: 'events', label: 'Évènements', icon: Calendar },
     { id: 'register', label: 'S\'enregistrer', icon: UserPlus },
@@ -781,7 +1031,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-black font-sans">
+    <div className="min-h-screen flex flex-col md:flex-row bg-black font-sans overflow-x-hidden">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-[280px] bg-gray-dark sidebar-border flex-col p-10 justify-between sticky top-0 h-screen">
         <div className="space-y-12">
@@ -854,21 +1104,27 @@ export default function App() {
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 md:p-10 relative">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={view}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
-            {view === 'home' && <HomeSection onNavigate={setView} />}
-            {view === 'register' && <RegistrationSection />}
-            {view === 'search' && <SearchSection />}
-            {view === 'events' && <EventsSection />}
-          </motion.div>
-        </AnimatePresence>
+      <main className="flex-1 p-4 md:p-10 relative overflow-x-hidden">
+        <div className="max-w-7xl mx-auto w-full">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={typeof view === 'string' ? view : view.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {view === 'home' && <HomeSection onNavigate={setView} />}
+              {view === 'register' && <RegistrationSection />}
+              {view === 'search' && <SearchSection />}
+              {view === 'events' && <EventsSection />}
+              {view === 'cities' && <CitiesSection onNavigate={(id) => setView({ type: 'city', id })} />}
+              {typeof view !== 'string' && view.type === 'city' && (
+                <CityDetailSection cityId={view.id} onBack={() => setView('cities')} />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
         {/* WhatsApp FAB */}
         <motion.button

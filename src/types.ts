@@ -41,4 +41,29 @@ export interface Event {
   description: string;
   image: string;
   externalLink?: string;
+  city?: string; // Optional link to a city
+}
+
+export interface Association {
+  id: string;
+  name: string;
+  city: string;
+  description: string;
+  logo?: string;
+}
+
+export interface City {
+  id: string;
+  name: string;
+  island: Island;
+  description: string;
+  image: string;
+}
+
+export interface Ad {
+  id: string;
+  title: string;
+  subtitle: string;
+  image: string;
+  link: string;
 }

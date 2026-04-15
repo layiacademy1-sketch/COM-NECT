@@ -1,4 +1,42 @@
-import { Person, Professional, Event } from './types';
+import { Person, Professional, Event, Association, City, Ad } from './types';
+
+export const MOCK_ADS: Ad[] = [
+  {
+    id: '1',
+    title: 'Layi Academy',
+    subtitle: 'Formation Snapchat',
+    image: 'https://picsum.photos/seed/layi/300/400',
+    link: 'https://layi-academy.fr'
+  },
+  {
+    id: '2',
+    title: 'ZYRO',
+    subtitle: 'Vêtements Premium',
+    image: 'https://picsum.photos/seed/zyro/300/400',
+    link: 'https://zyro.fr'
+  },
+  {
+    id: '3',
+    title: 'Chaussures Comores',
+    subtitle: 'Collection exclusive',
+    image: 'https://picsum.photos/seed/shoes/300/400',
+    link: '#'
+  },
+  {
+    id: '4',
+    title: 'Immo-Connect',
+    subtitle: 'Investir au pays',
+    image: 'https://picsum.photos/seed/immo/300/400',
+    link: '#'
+  },
+  {
+    id: '5',
+    title: 'Air Comores',
+    subtitle: 'Vols directs',
+    image: 'https://picsum.photos/seed/plane/300/400',
+    link: '#'
+  }
+];
 
 export const MOCK_PEOPLE: Person[] = [
   {
@@ -40,6 +78,16 @@ export const MOCK_PEOPLE: Person[] = [
     cityComoros: 'Fomboni',
     description: 'Artiste peintre, je m\'inspire des paysages de mon île.',
     socials: { instagram: 'nadia_art' }
+  },
+  {
+    id: '5',
+    firstName: 'Ahmed',
+    lastName: 'Bakari',
+    island: 'Grande Comore',
+    cityFrance: 'Paris',
+    cityComoros: 'Moroni',
+    description: 'Ingénieur civil, fier de ses origines.',
+    socials: { instagram: 'ahmed_b' }
   }
 ];
 
@@ -73,6 +121,16 @@ export const MOCK_PROFESSIONALS: Professional[] = [
     cityComoros: 'Toutes',
     description: 'Transport de colis et logistique vers l\'archipel.',
     image: 'https://picsum.photos/seed/truck/400/300'
+  },
+  {
+    id: '4',
+    name: 'Moroni Tech',
+    category: 'autre',
+    island: 'Grande Comore',
+    cityFrance: 'Paris',
+    cityComoros: 'Moroni',
+    description: 'Solutions informatiques et digitales.',
+    image: 'https://picsum.photos/seed/tech/400/300'
   }
 ];
 
@@ -84,7 +142,8 @@ export const MOCK_EVENTS: Event[] = [
     location: 'Casino de Paris, Paris',
     description: 'Concert exceptionnel de la célèbre chanteuse Mahoraise.',
     image: 'https://image.noelshack.com/fichiers/2026/16/3/1776274008-vz-8af607df-839f-4bb3-9268-d6bf91052219.jpeg',
-    externalLink: 'https://www.casinodeparis.fr/fr/Zily-22-Mai-2026-Billetterie-Paris'
+    externalLink: 'https://www.casinodeparis.fr/fr/Zily-22-Mai-2026-Billetterie-Paris',
+    city: 'Moroni'
   },
   {
     id: '2',
@@ -93,6 +152,55 @@ export const MOCK_EVENTS: Event[] = [
     location: 'La Cigale, Paris',
     description: 'Concert exceptionnel du célèbre chanteur Comorien.',
     image: 'https://image.noelshack.com/fichiers/2026/16/3/1776274195-playtwo-artiste-saysz-600x900-2.jpg',
-    externalLink: 'https://lacigale.fr/evenements/saysz/'
+    externalLink: 'https://lacigale.fr/evenements/saysz/',
+    city: 'Moroni'
+  }
+];
+
+export const MOCK_ASSOCIATIONS: Association[] = [
+  {
+    id: '1',
+    name: 'Amicale de Moroni',
+    city: 'Moroni',
+    description: 'Association culturelle et sociale pour les ressortissants de Moroni.',
+    logo: 'https://picsum.photos/seed/assoc1/100/100'
+  },
+  {
+    id: '2',
+    name: 'Jeunesse Fomboni',
+    city: 'Fomboni',
+    description: 'Promotion du sport et de l\'éducation à Fomboni.',
+    logo: 'https://picsum.photos/seed/assoc2/100/100'
+  }
+];
+
+export const MOCK_CITIES: City[] = [
+  {
+    id: '1',
+    name: 'Moroni',
+    island: 'Grande Comore',
+    description: 'La capitale des Comores, située sur la côte ouest de la Grande Comore.',
+    image: 'https://picsum.photos/seed/moroni/800/400'
+  },
+  {
+    id: '2',
+    name: 'Mutsamudu',
+    island: 'Anjouan',
+    description: 'La capitale d\'Anjouan, connue pour sa citadelle et ses rues étroites.',
+    image: 'https://picsum.photos/seed/mutsamudu/800/400'
+  },
+  {
+    id: '3',
+    name: 'Fomboni',
+    island: 'Mohéli',
+    description: 'La plus grande ville de Mohéli, calme et accueillante.',
+    image: 'https://picsum.photos/seed/fomboni/800/400'
+  },
+  {
+    id: '4',
+    name: 'Mamoudzou',
+    island: 'Mayotte',
+    description: 'Le centre économique et administratif de Mayotte.',
+    image: 'https://picsum.photos/seed/mamoudzou/800/400'
   }
 ];
