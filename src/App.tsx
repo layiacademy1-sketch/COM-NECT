@@ -167,6 +167,19 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string) => void }) => 
             </div>
           </div>
         </Panel>
+
+        <Panel title="Trouver un professionnel">
+          <div className="space-y-6">
+            <div className="bg-black border border-gold-500/30 rounded-full px-5 py-4 flex items-center gap-3 text-text-muted">
+              <Briefcase size={18} className="text-gold-500" />
+              <input type="text" className="bg-transparent border-none text-white w-full outline-none text-sm placeholder:text-white/20" placeholder="Restaurant, coiffeur, photographe..." />
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button variant="primary" className="flex-1" onClick={() => onNavigate('search')}>Trouver un pro</Button>
+              <Button variant="outline" className="flex-1" onClick={() => onNavigate('search')}>Voir les catégories</Button>
+            </div>
+          </div>
+        </Panel>
       </div>
 
       {/* Right Panel: Stats & Join */}
@@ -174,16 +187,16 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string) => void }) => 
         <Panel title="Impact Communautaire">
           <div className="space-y-4">
             <div className="bg-white/5 rounded-[20px] p-5 text-center border border-white/5">
-              <div className="text-3xl font-bold text-gold-500">1,240+</div>
+              <div className="text-3xl font-bold text-gold-500">10</div>
               <div className="text-[10px] text-text-muted uppercase tracking-widest mt-1">Membres Inscrits</div>
             </div>
             <div className="bg-white/5 rounded-[20px] p-5 text-center border border-white/5">
-              <div className="text-3xl font-bold text-gold-500">85</div>
+              <div className="text-3xl font-bold text-gold-500">10</div>
               <div className="text-[10px] text-text-muted uppercase tracking-widest mt-1">Professionnels Certifiés</div>
             </div>
             <div className="bg-white/5 rounded-[20px] p-5 text-center border border-white/5">
-              <div className="text-3xl font-bold text-gold-500">12</div>
-              <div className="text-[10px] text-text-muted uppercase tracking-widest mt-1">Évènements ce mois</div>
+              <div className="text-3xl font-bold text-gold-500">2</div>
+              <div className="text-[10px] text-text-muted uppercase tracking-widest mt-1">Évènements</div>
             </div>
           </div>
         </Panel>
@@ -202,6 +215,8 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string) => void }) => 
 );
 
 const RegistrationSection = () => {
+  const [activeTab, setActiveTab] = useState<'particulier' | 'professionnel'>('particulier');
+  
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -221,14 +236,28 @@ const RegistrationSection = () => {
     description: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [proData, setProData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    snapchat: '',
+    instagram: '',
+    tiktok: '',
+    website: '',
+    island: '' as Island | '',
+    cityFrance: '',
+    cityComoros: '',
+    description: ''
+  });
+
+  const handleSubmitParticulier = (e: React.FormEvent) => {
     e.preventDefault();
     
-    let message = `Bonjour, je souhaite m’enregistrer sur COM-NECT.\n\n`;
+    let message = `Bonjour, je souhaite m’enregistrer en tant que PARTICULIER sur COM-NECT.\n\n`;
     message += `Prénom : ${formData.firstName}\n`;
     message += `Nom : ${formData.lastName}\n`;
     if (formData.nickname) message += `Surnom : ${formData.nickname}\n`;
-    if (formData.email) message += `Mail : ${formData.email}\n`;
+    message += `Mail : ${formData.email}\n`;
     if (formData.phone) message += `Téléphone : ${formData.phone}\n`;
     if (formData.snapchat) message += `Snapchat : ${formData.snapchat}\n`;
     if (formData.instagram) message += `Instagram : ${formData.instagram}\n`;
@@ -251,150 +280,279 @@ const RegistrationSection = () => {
     window.open(whatsappUrl, '_blank');
   };
 
+  const handleSubmitProfessionnel = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    let message = `Bonjour, je souhaite m’enregistrer en tant que PROFESSIONNEL sur COM-NECT.\n\n`;
+    message += `Nom de l'activité : ${proData.name}\n`;
+    if (proData.email) message += `Mail : ${proData.email}\n`;
+    if (proData.phone) message += `Téléphone : ${proData.phone}\n`;
+    if (proData.snapchat) message += `Snapchat : ${proData.snapchat}\n`;
+    if (proData.instagram) message += `Instagram : ${proData.instagram}\n`;
+    if (proData.tiktok) message += `TikTok : ${proData.tiktok}\n`;
+    if (proData.website) message += `Site internet : ${proData.website}\n`;
+    message += `Île : ${proData.island}\n`;
+    message += `Ville en France : ${proData.cityFrance}\n`;
+    message += `Ville aux Comores : ${proData.cityComoros}\n`;
+    if (proData.description) message += `Présentation de l'activité : ${proData.description}\n`;
+
+    const whatsappUrl = `https://wa.me/33757828250?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   return (
     <div className="max-w-3xl mx-auto space-y-10 pb-32">
-      <header className="hero space-y-2 text-center">
+      <header className="hero space-y-4 text-center">
         <h1 className="text-4xl font-bold gold-text tracking-tight">M'enregistrer</h1>
-        <p className="text-text-muted text-lg">Rejoignez la communauté et devenez visible pour vos proches.</p>
+        <p className="text-text-muted text-lg">Rejoignez la communauté COM-NECT.</p>
+        
+        <div className="flex justify-center gap-4 mt-8">
+          <button 
+            onClick={() => setActiveTab('particulier')}
+            className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === 'particulier' ? 'bg-gold-500 text-black shadow-lg shadow-gold-500/20' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
+          >
+            👉 Particulier
+          </button>
+          <button 
+            onClick={() => setActiveTab('professionnel')}
+            className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === 'professionnel' ? 'bg-gold-500 text-black shadow-lg shadow-gold-500/20' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
+          >
+            👉 Professionnel
+          </button>
+        </div>
       </header>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <Panel title="Informations Personnelles">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Input 
-              label="Prénom *" 
-              required 
-              value={formData.firstName}
-              onChange={(e: any) => setFormData({...formData, firstName: e.target.value})}
-            />
-            <Input 
-              label="Nom *" 
-              required 
-              value={formData.lastName}
-              onChange={(e: any) => setFormData({...formData, lastName: e.target.value})}
-            />
-            <Input 
-              label="Surnom" 
-              value={formData.nickname}
-              onChange={(e: any) => setFormData({...formData, nickname: e.target.value})}
-            />
-            <Input 
-              label="Adresse Mail" 
-              type="email"
-              value={formData.email}
-              onChange={(e: any) => setFormData({...formData, email: e.target.value})}
-            />
-            <Input 
-              label="Numéro de téléphone" 
-              type="tel"
-              value={formData.phone}
-              onChange={(e: any) => setFormData({...formData, phone: e.target.value})}
-            />
-          </div>
-        </Panel>
-
-        <Panel title="Réseaux Sociaux">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Input 
-              label="Snapchat" 
-              value={formData.snapchat}
-              onChange={(e: any) => setFormData({...formData, snapchat: e.target.value})}
-            />
-            <Input 
-              label="Instagram" 
-              value={formData.instagram}
-              onChange={(e: any) => setFormData({...formData, instagram: e.target.value})}
-            />
-            <Input 
-              label="TikTok" 
-              value={formData.tiktok}
-              onChange={(e: any) => setFormData({...formData, tiktok: e.target.value})}
-            />
-          </div>
-        </Panel>
-
-        <Panel title="Localisation">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Select 
-              label="Île *" 
-              required
-              options={['Grande Comore', 'Mayotte', 'Anjouan', 'Mohéli', 'Les 4 îles']}
-              value={formData.island}
-              onChange={(e: any) => setFormData({...formData, island: e.target.value})}
-            />
-            <Input 
-              label="Ville en France *" 
-              required
-              value={formData.cityFrance}
-              onChange={(e: any) => setFormData({...formData, cityFrance: e.target.value})}
-            />
-            
-            {formData.island && formData.island !== 'Les 4 îles' && (
+      {activeTab === 'particulier' ? (
+        <form onSubmit={handleSubmitParticulier} className="space-y-8">
+          <Panel title="Informations Personnelles">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input 
-                label="Ville aux Comores *" 
-                required
-                value={formData.cityComoros}
-                onChange={(e: any) => setFormData({...formData, cityComoros: e.target.value})}
-              />
-            )}
-          </div>
-
-          {formData.island === 'Les 4 îles' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 p-6 bg-black/40 rounded-2xl border border-white/5">
-              <Input 
-                label="Ville à Grande Comore *" 
-                required
-                value={formData.grandeComoreCity}
-                onChange={(e: any) => setFormData({...formData, grandeComoreCity: e.target.value})}
+                label="Prénom *" 
+                required 
+                value={formData.firstName}
+                onChange={(e: any) => setFormData({...formData, firstName: e.target.value})}
               />
               <Input 
-                label="Ville à Mayotte *" 
-                required
-                value={formData.mayotteCity}
-                onChange={(e: any) => setFormData({...formData, mayotteCity: e.target.value})}
+                label="Nom *" 
+                required 
+                value={formData.lastName}
+                onChange={(e: any) => setFormData({...formData, lastName: e.target.value})}
               />
               <Input 
-                label="Ville à Anjouan *" 
-                required
-                value={formData.anjouanCity}
-                onChange={(e: any) => setFormData({...formData, anjouanCity: e.target.value})}
+                label="Surnom" 
+                value={formData.nickname}
+                onChange={(e: any) => setFormData({...formData, nickname: e.target.value})}
               />
               <Input 
-                label="Ville à Mohéli *" 
+                label="Adresse Mail *" 
+                type="email"
                 required
-                value={formData.moheliCity}
-                onChange={(e: any) => setFormData({...formData, moheliCity: e.target.value})}
+                value={formData.email}
+                onChange={(e: any) => setFormData({...formData, email: e.target.value})}
+              />
+              <Input 
+                label="Numéro de téléphone" 
+                type="tel"
+                value={formData.phone}
+                onChange={(e: any) => setFormData({...formData, phone: e.target.value})}
               />
             </div>
-          )}
-        </Panel>
+          </Panel>
 
-        <Panel title="Présentation">
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-text-muted uppercase tracking-wider ml-1">Dites-en un peu plus sur vous...</label>
-            <textarea 
-              rows={4}
-              className="w-full bg-black border border-gold-500/30 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-gold-500 transition-colors placeholder:text-white/20 text-sm"
-              value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
-            />
-          </div>
-        </Panel>
+          <Panel title="Réseaux Sociaux">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Input 
+                label="Snapchat" 
+                value={formData.snapchat}
+                onChange={(e: any) => setFormData({...formData, snapchat: e.target.value})}
+              />
+              <Input 
+                label="Instagram" 
+                value={formData.instagram}
+                onChange={(e: any) => setFormData({...formData, instagram: e.target.value})}
+              />
+              <Input 
+                label="TikTok" 
+                value={formData.tiktok}
+                onChange={(e: any) => setFormData({...formData, tiktok: e.target.value})}
+              />
+            </div>
+          </Panel>
 
-        <Button type="submit" variant="primary" className="w-full py-5 text-lg">
-          <Send size={20} /> Enregistrer via WhatsApp
-        </Button>
-      </form>
+          <Panel title="Localisation">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Select 
+                label="Île *" 
+                required
+                options={['Grande Comore', 'Mayotte', 'Anjouan', 'Mohéli', 'Les 4 îles']}
+                value={formData.island}
+                onChange={(e: any) => setFormData({...formData, island: e.target.value})}
+              />
+              <Input 
+                label="Ville en France *" 
+                required
+                value={formData.cityFrance}
+                onChange={(e: any) => setFormData({...formData, cityFrance: e.target.value})}
+              />
+              
+              {formData.island && formData.island !== 'Les 4 îles' && (
+                <Input 
+                  label="Ville aux Comores *" 
+                  required
+                  value={formData.cityComoros}
+                  onChange={(e: any) => setFormData({...formData, cityComoros: e.target.value})}
+                />
+              )}
+            </div>
+
+            {formData.island === 'Les 4 îles' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 p-6 bg-black/40 rounded-2xl border border-white/5">
+                <Input 
+                  label="Ville à Grande Comore *" 
+                  required
+                  value={formData.grandeComoreCity}
+                  onChange={(e: any) => setFormData({...formData, grandeComoreCity: e.target.value})}
+                />
+                <Input 
+                  label="Ville à Mayotte *" 
+                  required
+                  value={formData.mayotteCity}
+                  onChange={(e: any) => setFormData({...formData, mayotteCity: e.target.value})}
+                />
+                <Input 
+                  label="Ville à Anjouan *" 
+                  required
+                  value={formData.anjouanCity}
+                  onChange={(e: any) => setFormData({...formData, anjouanCity: e.target.value})}
+                />
+                <Input 
+                  label="Ville à Mohéli *" 
+                  required
+                  value={formData.moheliCity}
+                  onChange={(e: any) => setFormData({...formData, moheliCity: e.target.value})}
+                />
+              </div>
+            )}
+          </Panel>
+
+          <Panel title="Présentation">
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-text-muted uppercase tracking-wider ml-1">Dites-en un peu plus sur vous...</label>
+              <textarea 
+                rows={4}
+                className="w-full bg-black border border-gold-500/30 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-gold-500 transition-colors placeholder:text-white/20 text-sm"
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+              />
+            </div>
+          </Panel>
+
+          <Button type="submit" variant="primary" className="w-full py-5 text-lg">
+            <Send size={20} /> S'enregistrer (Particulier)
+          </Button>
+        </form>
+      ) : (
+        <form onSubmit={handleSubmitProfessionnel} className="space-y-8">
+          <Panel title="Informations Professionnelles">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input 
+                label="Nom de l'activité *" 
+                required 
+                value={proData.name}
+                onChange={(e: any) => setProData({...proData, name: e.target.value})}
+              />
+              <Input 
+                label="Adresse Mail" 
+                type="email"
+                value={proData.email}
+                onChange={(e: any) => setProData({...proData, email: e.target.value})}
+              />
+              <Input 
+                label="Numéro de téléphone" 
+                type="tel"
+                value={proData.phone}
+                onChange={(e: any) => setProData({...proData, phone: e.target.value})}
+              />
+              <Input 
+                label="Site internet" 
+                type="url"
+                placeholder="https://..."
+                value={proData.website}
+                onChange={(e: any) => setProData({...proData, website: e.target.value})}
+              />
+            </div>
+          </Panel>
+
+          <Panel title="Réseaux Sociaux">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Input 
+                label="Snapchat" 
+                value={proData.snapchat}
+                onChange={(e: any) => setProData({...proData, snapchat: e.target.value})}
+              />
+              <Input 
+                label="Instagram" 
+                value={proData.instagram}
+                onChange={(e: any) => setProData({...proData, instagram: e.target.value})}
+              />
+              <Input 
+                label="TikTok" 
+                value={proData.tiktok}
+                onChange={(e: any) => setProData({...proData, tiktok: e.target.value})}
+              />
+            </div>
+          </Panel>
+
+          <Panel title="Localisation">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Select 
+                label="Île *" 
+                required
+                options={['Grande Comore', 'Mayotte', 'Anjouan', 'Mohéli', 'Les 4 îles']}
+                value={proData.island}
+                onChange={(e: any) => setProData({...proData, island: e.target.value})}
+              />
+              <Input 
+                label="Ville en France" 
+                value={proData.cityFrance}
+                onChange={(e: any) => setProData({...proData, cityFrance: e.target.value})}
+              />
+              <Input 
+                label="Ville aux Comores" 
+                value={proData.cityComoros}
+                onChange={(e: any) => setProData({...proData, cityComoros: e.target.value})}
+              />
+            </div>
+          </Panel>
+
+          <Panel title="Présentation de l'activité">
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-text-muted uppercase tracking-wider ml-1">Décrivez votre activité...</label>
+              <textarea 
+                rows={4}
+                className="w-full bg-black border border-gold-500/30 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-gold-500 transition-colors placeholder:text-white/20 text-sm"
+                value={proData.description}
+                onChange={(e) => setProData({...proData, description: e.target.value})}
+              />
+            </div>
+          </Panel>
+
+          <Button type="submit" variant="primary" className="w-full py-5 text-lg">
+            <Send size={20} /> S'enregistrer (Professionnel)
+          </Button>
+        </form>
+      )}
     </div>
   );
 };
 
 const SearchSection = () => {
+  const [activeTab, setActiveTab] = useState<'particulier' | 'professionnel'>('particulier');
   const [query, setQuery] = useState('');
   const [islandFilter, setIslandFilter] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
 
-  const results = useMemo(() => {
+  const peopleResults = useMemo(() => {
     if (!hasSearched) return [];
     return MOCK_PEOPLE.filter(p => {
       const matchesQuery = !query || 
@@ -410,11 +568,42 @@ const SearchSection = () => {
     });
   }, [query, islandFilter, hasSearched]);
 
+  const proResults = useMemo(() => {
+    if (!hasSearched) return [];
+    return MOCK_PROFESSIONALS.filter(p => {
+      const matchesQuery = !query || 
+        p.name.toLowerCase().includes(query.toLowerCase()) ||
+        p.category.toLowerCase().includes(query.toLowerCase()) ||
+        p.cityFrance.toLowerCase().includes(query.toLowerCase()) ||
+        p.cityComoros.toLowerCase().includes(query.toLowerCase()) ||
+        p.description.toLowerCase().includes(query.toLowerCase());
+      
+      const matchesIsland = !islandFilter || p.island === islandFilter;
+      
+      return matchesQuery && matchesIsland;
+    });
+  }, [query, islandFilter, hasSearched]);
+
   return (
     <div className="max-w-5xl mx-auto space-y-10 pb-32">
-      <header className="hero space-y-2 text-center">
+      <header className="hero space-y-4 text-center">
         <h1 className="text-4xl font-bold gold-text tracking-tight">Recherche</h1>
-        <p className="text-text-muted text-lg">Trouvez des membres de la communauté partout en France.</p>
+        <p className="text-text-muted text-lg">Trouvez des membres ou des professionnels partout en France.</p>
+        
+        <div className="flex justify-center gap-4 mt-8">
+          <button 
+            onClick={() => setActiveTab('particulier')}
+            className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === 'particulier' ? 'bg-gold-500 text-black shadow-lg shadow-gold-500/20' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
+          >
+            👉 Particulier
+          </button>
+          <button 
+            onClick={() => setActiveTab('professionnel')}
+            className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === 'professionnel' ? 'bg-gold-500 text-black shadow-lg shadow-gold-500/20' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
+          >
+            👉 Professionnel
+          </button>
+        </div>
       </header>
 
       <Panel>
@@ -423,7 +612,7 @@ const SearchSection = () => {
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gold-500" size={18} />
             <input 
               type="text"
-              placeholder="Ville, village, nom ou mot-clé..."
+              placeholder={activeTab === 'particulier' ? "Ville, village, nom ou mot-clé..." : "Restaurant, coiffeur, photographe..."}
               className="w-full bg-black border border-gold-500/30 rounded-full pl-12 pr-5 py-4 text-white focus:outline-none focus:border-gold-500 transition-colors text-sm"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -441,53 +630,76 @@ const SearchSection = () => {
         </Button>
       </Panel>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {!hasSearched ? (
           <div className="col-span-full py-20 text-center space-y-4 bg-gray-dark rounded-[24px] panel-border">
             <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto text-gold-500/20">
-              <Search size={40} />
+              {activeTab === 'particulier' ? <Search size={40} /> : <Briefcase size={40} />}
             </div>
-            <p className="text-text-muted text-lg">Lancez une recherche pour voir les profils disponibles</p>
+            <p className="text-text-muted text-lg">Lancez une recherche pour voir les {activeTab === 'particulier' ? 'profils' : 'professionnels'} disponibles</p>
           </div>
-        ) : results.length > 0 ? (
-          results.map(person => (
-            <Card key={person.id} className="space-y-6 group">
-              <div className="flex justify-between items-start">
-                <div className="space-y-1">
-                  <h3 className="text-xl font-bold group-hover:text-gold-500 transition-colors">{person.firstName} {person.lastName}</h3>
-                  <div className="flex items-center gap-2 text-gold-500 text-[11px] font-bold uppercase tracking-wider">
-                    <Globe size={12} /> {person.island}
+        ) : (activeTab === 'particulier' ? peopleResults : proResults).length > 0 ? (
+          (activeTab === 'particulier' ? peopleResults : proResults).map(item => (
+            activeTab === 'particulier' ? (
+              <Card key={item.id} className="space-y-6 group">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-1">
+                    <h3 className="text-xl font-bold group-hover:text-gold-500 transition-colors">{(item as Person).firstName} {(item as Person).lastName}</h3>
+                    <div className="flex items-center gap-2 text-gold-500 text-[11px] font-bold uppercase tracking-wider">
+                      <Globe size={12} /> {(item as Person).island}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    {(item as Person).socials.instagram && (
+                      <a href={`https://instagram.com/${(item as Person).socials.instagram}`} target="_blank" className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-text-muted hover:text-gold-500 hover:bg-gold-500/10 transition-all">
+                        <Instagram size={18} />
+                      </a>
+                    )}
+                    {(item as Person).socials.tiktok && (
+                      <a href="#" className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-text-muted hover:text-gold-500 hover:bg-gold-500/10 transition-all">
+                        <MessageCircle size={18} />
+                      </a>
+                    )}
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  {person.socials.instagram && (
-                    <a href={`https://instagram.com/${person.socials.instagram}`} target="_blank" className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-text-muted hover:text-gold-500 hover:bg-gold-500/10 transition-all">
-                      <Instagram size={18} />
-                    </a>
-                  )}
-                  {person.socials.tiktok && (
-                    <a href="#" className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-text-muted hover:text-gold-500 hover:bg-gold-500/10 transition-all">
-                      <MessageCircle size={18} />
-                    </a>
-                  )}
+                
+                <div className="grid grid-cols-2 gap-4 py-4 border-y border-white/5">
+                  <div className="space-y-1">
+                    <span className="text-[10px] uppercase tracking-widest text-text-muted font-bold">Ville en France</span>
+                    <p className="text-sm flex items-center gap-1.5"><MapPin size={14} className="text-gold-500" /> {(item as Person).cityFrance}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] uppercase tracking-widest text-text-muted font-bold">Ville aux Comores</span>
+                    <p className="text-sm flex items-center gap-1.5"><Home size={14} className="text-gold-500" /> {(item as Person).cityComoros}</p>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 py-4 border-y border-white/5">
-                <div className="space-y-1">
-                  <span className="text-[10px] uppercase tracking-widest text-text-muted font-bold">Ville en France</span>
-                  <p className="text-sm flex items-center gap-1.5"><MapPin size={14} className="text-gold-500" /> {person.cityFrance}</p>
-                </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] uppercase tracking-widest text-text-muted font-bold">Ville aux Comores</span>
-                  <p className="text-sm flex items-center gap-1.5"><Home size={14} className="text-gold-500" /> {person.cityComoros}</p>
-                </div>
-              </div>
 
-              <p className="text-sm text-white/60 leading-relaxed italic">
-                "{person.description}"
-              </p>
-            </Card>
+                <p className="text-sm text-white/60 leading-relaxed italic">
+                  "{(item as Person).description}"
+                </p>
+              </Card>
+            ) : (
+              <div key={item.id} className="bg-gray-dark rounded-[24px] panel-border overflow-hidden group cursor-pointer hover:shadow-2xl hover:shadow-gold-500/5 transition-all duration-300">
+                <div className="relative h-48 overflow-hidden">
+                  <img src={(item as Professional).image} alt={(item as Professional).name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+                  <div className="absolute bottom-4 left-4">
+                    <span className="px-3 py-1 rounded-full bg-gold-500 text-black text-[10px] font-bold uppercase tracking-widest">
+                      {(item as Professional).category}
+                    </span>
+                  </div>
+                </div>
+                <div className="p-6 space-y-4">
+                  <h3 className="text-xl font-bold group-hover:text-gold-500 transition-colors">{(item as Professional).name}</h3>
+                  <div className="space-y-2">
+                    <p className="text-sm text-text-muted flex items-center gap-2"><MapPin size={14} className="text-gold-500" /> {(item as Professional).cityFrance}</p>
+                    <p className="text-sm text-text-muted flex items-center gap-2"><Globe size={14} className="text-gold-500" /> {(item as Professional).island}</p>
+                  </div>
+                  <p className="text-sm text-white/40 line-clamp-2 leading-relaxed">{(item as Professional).description}</p>
+                  <Button variant="outline" className="w-full text-xs py-2.5">Voir le profil</Button>
+                </div>
+              </div>
+            )
           ))
         ) : (
           <div className="col-span-full py-20 text-center space-y-6 bg-gray-dark rounded-[24px] panel-border">
@@ -502,97 +714,7 @@ const SearchSection = () => {
   );
 };
 
-const ProfessionalSection = () => {
-  const [query, setQuery] = useState('');
-  const [islandFilter, setIslandFilter] = useState('');
-  const [hasSearched, setHasSearched] = useState(false);
 
-  const results = useMemo(() => {
-    if (!hasSearched) return [];
-    return MOCK_PROFESSIONALS.filter(p => {
-      const matchesQuery = !query || 
-        p.name.toLowerCase().includes(query.toLowerCase()) ||
-        p.category.toLowerCase().includes(query.toLowerCase()) ||
-        p.cityFrance.toLowerCase().includes(query.toLowerCase()) ||
-        p.cityComoros.toLowerCase().includes(query.toLowerCase());
-      
-      const matchesIsland = !islandFilter || p.island === islandFilter;
-      
-      return matchesQuery && matchesIsland;
-    });
-  }, [query, islandFilter, hasSearched]);
-
-  return (
-    <div className="max-w-5xl mx-auto space-y-10 pb-32">
-      <header className="hero space-y-2 text-center">
-        <h1 className="text-4xl font-bold gold-text tracking-tight">Pro & Services</h1>
-        <p className="text-text-muted text-lg">Soutenez les talents et commerces de la communauté.</p>
-      </header>
-
-      <Panel>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2 relative">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gold-500" size={18} />
-            <input 
-              type="text"
-              placeholder="Restaurant, coiffeur, photographe..."
-              className="w-full bg-black border border-gold-500/30 rounded-full pl-12 pr-5 py-4 text-white focus:outline-none focus:border-gold-500 transition-colors text-sm"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </div>
-          <Select 
-            label="" 
-            options={['Grande Comore', 'Mayotte', 'Anjouan', 'Mohéli', 'Les 4 îles']}
-            value={islandFilter}
-            onChange={(e: any) => setIslandFilter(e.target.value)}
-          />
-        </div>
-        <Button variant="primary" className="w-full mt-6" onClick={() => setHasSearched(true)}>
-          Trouver un pro
-        </Button>
-      </Panel>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {!hasSearched ? (
-          <div className="col-span-full py-20 text-center space-y-4 bg-gray-dark rounded-[24px] panel-border">
-            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto text-gold-500/20">
-              <Briefcase size={40} />
-            </div>
-            <p className="text-text-muted text-lg">Lancez une recherche pour voir les professionnels</p>
-          </div>
-        ) : results.length > 0 ? (
-          results.map(pro => (
-            <div key={pro.id} className="bg-gray-dark rounded-[24px] panel-border overflow-hidden group cursor-pointer hover:shadow-2xl hover:shadow-gold-500/5 transition-all duration-300">
-              <div className="relative h-48 overflow-hidden">
-                <img src={pro.image} alt={pro.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-                <div className="absolute bottom-4 left-4">
-                  <span className="px-3 py-1 rounded-full bg-gold-500 text-black text-[10px] font-bold uppercase tracking-widest">
-                    {pro.category}
-                  </span>
-                </div>
-              </div>
-              <div className="p-6 space-y-4">
-                <h3 className="text-xl font-bold group-hover:text-gold-500 transition-colors">{pro.name}</h3>
-                <div className="space-y-2">
-                  <p className="text-sm text-text-muted flex items-center gap-2"><MapPin size={14} className="text-gold-500" /> {pro.cityFrance}</p>
-                  <p className="text-sm text-text-muted flex items-center gap-2"><Globe size={14} className="text-gold-500" /> {pro.island}</p>
-                </div>
-                <p className="text-sm text-white/40 line-clamp-2 leading-relaxed">{pro.description}</p>
-                <Button variant="outline" className="w-full text-xs py-2.5">Voir le profil</Button>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="col-span-full py-20 text-center bg-gray-dark rounded-[24px] panel-border">
-            <p className="text-text-muted text-lg">Aucun professionnel trouvé.</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
 
 const EventsSection = () => {
   return (
@@ -602,12 +724,6 @@ const EventsSection = () => {
           <h1 className="text-4xl font-bold gold-text tracking-tight">Évènements</h1>
           <p className="text-text-muted text-lg">Ne manquez rien de la vie communautaire.</p>
         </header>
-        <Button variant="primary" onClick={() => {
-          const message = encodeURIComponent("Bonjour, j’aimerais enregistrer un évènement sur COM-NECT.");
-          window.open(`https://wa.me/33757828250?text=${message}`, '_blank');
-        }}>
-          <Calendar size={18} /> Enregistrer un évènement
-        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -625,7 +741,13 @@ const EventsSection = () => {
                 <p className="text-sm text-text-muted flex items-center gap-2"><MapPin size={14} className="text-gold-500" /> {event.location}</p>
                 <p className="text-sm text-white/50 line-clamp-2 leading-relaxed">{event.description}</p>
               </div>
-              <Button variant="secondary" className="w-full md:w-auto text-xs py-2.5">Voir plus</Button>
+              <Button 
+                variant="secondary" 
+                className="w-full md:w-auto text-xs py-2.5"
+                onClick={() => event.externalLink && window.open(event.externalLink, '_blank')}
+              >
+                Voir plus
+              </Button>
             </div>
           </div>
         ))}
@@ -649,7 +771,6 @@ export default function App() {
   const navItems = [
     { id: 'home', label: 'Accueil', icon: Home },
     { id: 'search', label: 'Recherche', icon: Search },
-    { id: 'pro', label: 'Pro & Services', icon: Briefcase },
     { id: 'events', label: 'Évènements', icon: Calendar },
     { id: 'register', label: 'S\'enregistrer', icon: UserPlus },
   ];
@@ -745,7 +866,6 @@ export default function App() {
             {view === 'home' && <HomeSection onNavigate={setView} />}
             {view === 'register' && <RegistrationSection />}
             {view === 'search' && <SearchSection />}
-            {view === 'pro' && <ProfessionalSection />}
             {view === 'events' && <EventsSection />}
           </motion.div>
         </AnimatePresence>

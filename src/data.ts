@@ -79,18 +79,20 @@ export const MOCK_PROFESSIONALS: Professional[] = [
 export const MOCK_EVENTS: Event[] = [
   {
     id: '1',
-    title: 'Grand Mariage (Manzaraka)',
-    date: '15 Juillet 2026',
-    location: 'Salle des Fêtes, Marseille',
-    description: 'Célébration traditionnelle avec danses et chants.',
-    image: 'https://picsum.photos/seed/wedding/400/300'
+    title: 'ZILY au Casino de Paris',
+    date: '22 Mai 2026',
+    location: 'Casino de Paris, Paris',
+    description: 'Concert exceptionnel de la célèbre chanteuse Mahoraise.',
+    image: 'https://image.noelshack.com/fichiers/2026/16/3/1776274008-vz-8af607df-839f-4bb3-9268-d6bf91052219.jpeg',
+    externalLink: 'https://www.casinodeparis.fr/fr/Zily-22-Mai-2026-Billetterie-Paris'
   },
   {
     id: '2',
-    title: 'Conférence Diaspora',
-    date: '22 Août 2026',
-    location: 'Espace Congrès, Paris',
-    description: 'Réunion sur les opportunités d\'investissement aux Comores.',
-    image: 'https://picsum.photos/seed/conf/400/300'
+    title: 'SAYS’Z à la Cigale de Paris',
+    date: 'Sam. 17 Oct. 2026',
+    location: 'La Cigale, Paris',
+    description: 'Concert exceptionnel du célèbre chanteur Comorien.',
+    image: 'https://image.noelshack.com/fichiers/2026/16/3/1776274195-playtwo-artiste-saysz-600x900-2.jpg',
+    externalLink: 'https://lacigale.fr/evenements/saysz/'
   }
 ];

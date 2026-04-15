@@ -40,4 +40,5 @@ export interface Event {
   location: string;
   description: string;
   image: string;
+  externalLink?: string;
 }
