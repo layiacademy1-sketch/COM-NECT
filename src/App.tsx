@@ -413,7 +413,7 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: strin
                 <p className="text-sm text-text-muted leading-relaxed">
                   Petites annonces, services et bonnes affaires entre membres de la communauté.
                 </p>
-                <Button variant="gold" className="w-full py-3 text-sm font-bold uppercase tracking-widest" onClick={handleComingSoon}>
+                <Button variant="gold" className="w-full py-3 text-sm font-bold uppercase tracking-widest" onClick={() => onNavigate('boutique')}>
                   Entrer dans le Bon Coin
                 </Button>
               </div>
@@ -436,7 +436,7 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: strin
             <p className="text-xs text-text-muted leading-relaxed">
               Retrouvez toutes les annonces de la communauté.
             </p>
-            <Button variant="outline" className="w-full text-xs py-2" onClick={handleComingSoon}>
+            <Button variant="outline" className="w-full text-xs py-2" onClick={() => onNavigate('boutique')}>
               Accéder au Bon Coin
             </Button>
           </div>
