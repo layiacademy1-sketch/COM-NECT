@@ -1,4 +1,4 @@
-import { Person, Professional, Event, Association, City, Ad } from './types';
+import { Person, Professional, Event, Association, City, Ad, MarketplaceAd } from './types';
 
 export const MOCK_ADS: Ad[] = [
   {
@@ -204,5 +204,17 @@ export const MOCK_CITIES: City[] = [
     island: 'Mayotte',
     description: 'Le centre économique et administratif de Mayotte.',
     image: 'https://picsum.photos/seed/mamoudzou/800/400'
+  }
+];
+
+export const MOCK_MARKETPLACE_ADS: MarketplaceAd[] = [
+  {
+    id: '1',
+    title: 'Création de maillot',
+    category: 'mode',
+    price: 'À partir de 50€',
+    description: 'Personnalisation de maillots de sport de haute qualité. Design unique pour clubs ou particuliers.',
+    image: 'https://image.noelshack.com/fichiers/2026/16/4/1776302915-chatgpt-image-16-avr-2026-03-28-25.jpg',
+    contact: '0757828250'
   }
 ];

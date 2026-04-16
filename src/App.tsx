@@ -26,7 +26,10 @@ import {
   Lock,
   LogOut,
   ShoppingBag,
-  Info
+  Info,
+  Car,
+  Shirt,
+  Tag
 } from 'lucide-react';
 import { 
   signInWithEmailAndPassword, 
@@ -48,8 +51,8 @@ import {
   getDoc
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
-import { MOCK_PEOPLE, MOCK_PROFESSIONALS, MOCK_EVENTS, MOCK_CITIES, MOCK_ASSOCIATIONS, MOCK_ADS } from './data';
-import { Island, Person, Professional, Event as ComEvent, City, Association, Ad } from './types';
+import { MOCK_PEOPLE, MOCK_PROFESSIONALS, MOCK_EVENTS, MOCK_CITIES, MOCK_ASSOCIATIONS, MOCK_ADS, MOCK_MARKETPLACE_ADS } from './data';
+import { Island, Person, Professional, Event as ComEvent, City, Association, Ad, MarketplaceAd } from './types';
 
 // --- Components ---
 
@@ -591,18 +594,182 @@ const LoginSection = ({ onLoginSuccess }: { onLoginSuccess: () => void }) => {
 };
 
 const BoutiqueSection = () => {
+  const [activeCategory, setActiveCategory] = useState<'tous' | 'logement' | 'véhicule' | 'mode' | 'emploi'>('tous');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedAd, setSelectedAd] = useState<MarketplaceAd | null>(null);
+
+  const categories = [
+    { id: 'tous', label: 'Tous', icon: Tag },
+    { id: 'logement', label: 'Logement', icon: Home },
+    { id: 'véhicule', label: 'Véhicule', icon: Car },
+    { id: 'mode', label: 'Mode', icon: Shirt },
+    { id: 'emploi', label: 'Emploi', icon: Briefcase },
+  ];
+
+  const filteredAds = MOCK_MARKETPLACE_ADS.filter(ad => {
+    const matchesCategory = activeCategory === 'tous' || ad.category === activeCategory;
+    const matchesSearch = ad.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         ad.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
   return (
-    <div className="max-w-6xl mx-auto py-32 text-center space-y-6">
-      <div className="w-24 h-24 bg-gold-500/10 rounded-full flex items-center justify-center mx-auto text-gold-500">
-        <ShoppingBag size={48} />
+    <div className="max-w-6xl mx-auto py-12 px-4 space-y-12">
+      <header className="text-center space-y-4">
+        <h1 className="text-4xl font-bold gold-text tracking-tight uppercase">Le Bon Coin des Comores</h1>
+        <p className="text-text-muted text-lg">Petites annonces et services de la communauté</p>
+      </header>
+
+      {/* Search and Categories */}
+      <div className="space-y-8">
+        <div className="max-w-2xl mx-auto relative">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gold-500" size={20} />
+          <input 
+            type="text" 
+            placeholder="Que recherchez-vous ?" 
+            className="w-full bg-white/5 border border-gold-500/20 rounded-full pl-14 pr-6 py-4 text-white focus:outline-none focus:border-gold-500 transition-all shadow-lg"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-4">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id as any)}
+              className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all border ${
+                activeCategory === cat.id 
+                  ? 'bg-gold-500 text-black border-gold-500 shadow-lg shadow-gold-500/20' 
+                  : 'bg-white/5 text-white/60 border-white/10 hover:bg-white/10'
+              }`}
+            >
+              <cat.icon size={18} />
+              {cat.label}
+            </button>
+          ))}
+        </div>
       </div>
-      <h1 className="text-4xl font-bold gold-text tracking-tight uppercase">Le Bon Coin des Comores</h1>
-      <p className="text-text-muted text-xl font-medium">Bientôt disponible</p>
-      <div className="max-w-md mx-auto p-6 bg-white/[0.03] rounded-3xl panel-border">
-        <p className="text-sm text-white/40 leading-relaxed">
-          Nous préparons une sélection exclusive de produits traditionnels et artisanaux pour vous. Revenez bientôt !
-        </p>
+
+      {/* Ads Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {filteredAds.length > 0 ? (
+          filteredAds.map((ad) => (
+            <motion.div
+              key={ad.id}
+              layoutId={ad.id}
+              onClick={() => setSelectedAd(ad)}
+              className="group bg-white/[0.03] rounded-3xl overflow-hidden border border-white/5 hover:border-gold-500/50 transition-all cursor-pointer flex flex-col h-full"
+            >
+              <div className="aspect-video overflow-hidden relative">
+                <img 
+                  src={ad.image} 
+                  alt={ad.title} 
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+                  <span className="text-gold-500 font-bold text-sm">{ad.price}</span>
+                </div>
+              </div>
+              <div className="p-6 space-y-3 flex-grow flex flex-col">
+                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gold-500 font-bold">
+                  <Tag size={10} />
+                  {ad.category}
+                </div>
+                <h3 className="text-xl font-bold text-white group-hover:text-gold-500 transition-colors">{ad.title}</h3>
+                <p className="text-text-muted text-sm line-clamp-2 flex-grow">{ad.description}</p>
+                <div className="pt-4 flex items-center justify-between border-t border-white/5 mt-auto">
+                  <span className="text-xs text-white/40">Contact direct</span>
+                  <div className="flex items-center gap-1 text-gold-500 font-bold text-sm">
+                    <Phone size={14} />
+                    {ad.contact}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))
+        ) : (
+          <div className="col-span-full py-20 text-center space-y-4">
+            <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto text-white/20">
+              <Search size={32} />
+            </div>
+            <p className="text-text-muted">Aucune annonce ne correspond à votre recherche.</p>
+          </div>
+        )}
       </div>
+
+      {/* Ad Detail Modal */}
+      <AnimatePresence>
+        {selectedAd && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedAd(null)}
+              className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+            />
+            <motion.div 
+              layoutId={selectedAd.id}
+              className="relative w-full max-w-2xl bg-zinc-900 rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl"
+            >
+              <button 
+                onClick={() => setSelectedAd(null)}
+                className="absolute top-6 right-6 z-10 w-10 h-10 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:text-black transition-all"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="aspect-video w-full">
+                <img 
+                  src={selectedAd.image} 
+                  alt={selectedAd.title} 
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+
+              <div className="p-8 space-y-6">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-gold-500 font-bold">
+                      <Tag size={12} />
+                      {selectedAd.category}
+                    </div>
+                    <h2 className="text-3xl font-bold text-white">{selectedAd.title}</h2>
+                  </div>
+                  <div className="text-2xl font-bold gold-text">{selectedAd.price}</div>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="text-sm font-bold text-white uppercase tracking-widest">Présentation</h4>
+                  <p className="text-text-muted leading-relaxed">{selectedAd.description}</p>
+                </div>
+
+                <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row gap-4">
+                  <a 
+                    href={`tel:${selectedAd.contact}`}
+                    className="flex-1 bg-gold-500 text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-gold-400 transition-all shadow-lg shadow-gold-500/20"
+                  >
+                    <Phone size={20} />
+                    Appeler ({selectedAd.contact})
+                  </a>
+                  <a 
+                    href={`https://wa.me/${selectedAd.contact.replace(/\s/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 bg-white/5 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-white/10 transition-all border border-white/10"
+                  >
+                    <MessageCircle size={20} />
+                    WhatsApp
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

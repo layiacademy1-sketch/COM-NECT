@@ -68,3 +68,13 @@ export interface Ad {
   image: string;
   link: string;
 }
+
+export interface MarketplaceAd {
+  id: string;
+  title: string;
+  category: 'logement' | 'véhicule' | 'mode' | 'emploi';
+  price: string;
+  description: string;
+  image: string;
+  contact: string;
+}
