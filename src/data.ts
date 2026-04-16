@@ -93,44 +93,22 @@ export const MOCK_PEOPLE: Person[] = [
 
 export const MOCK_PROFESSIONALS: Professional[] = [
   {
-    id: '1',
-    name: 'Le Saveur des Îles',
-    category: 'restaurant',
+    id: 'komocom',
+    name: 'KOMOCOM',
+    category: 'web/digital',
     island: 'Grande Comore',
-    cityFrance: 'Marseille',
-    cityComoros: 'Moroni',
-    description: 'Cuisine traditionnelle comorienne au cœur de Marseille.',
-    image: 'https://picsum.photos/seed/restaurant1/400/300'
-  },
-  {
-    id: '2',
-    name: 'Style Comores',
-    category: 'coiffeur',
-    island: 'Anjouan',
-    cityFrance: 'Paris',
-    cityComoros: 'Mutsamudu',
-    description: 'Coiffure et soins esthétiques spécialisés.',
-    image: 'https://picsum.photos/seed/hair/400/300'
-  },
-  {
-    id: '3',
-    name: 'Com-Transport',
-    category: 'transport',
-    island: 'Les 4 îles',
-    cityFrance: 'Lyon',
-    cityComoros: 'Toutes',
-    description: 'Transport de colis et logistique vers l\'archipel.',
-    image: 'https://picsum.photos/seed/truck/400/300'
-  },
-  {
-    id: '4',
-    name: 'Moroni Tech',
-    category: 'autre',
-    island: 'Grande Comore',
-    cityFrance: 'Paris',
-    cityComoros: 'Moroni',
-    description: 'Solutions informatiques et digitales.',
-    image: 'https://picsum.photos/seed/tech/400/300'
+    cityFrance: 'Livry-gargan',
+    cityComoros: 'Simboussa Mbadjini',
+    email: 'komocom.agence@gmail.com',
+    phone: '0659778043',
+    website: 'https://www.instagram.com/komocom_agence',
+    description: `Depuis 2022, j’accompagne les entreprises et associations à gagner en crédibilité et en visibilité afin d’atteindre leur cible 🎯 
+
+- Création de site internet / One page
+- Conception et impression graphique 
+- Gestion des réseaux sociaux 
+- Animation graphique`,
+    image: 'https://image.noelshack.com/fichiers/2026/16/4/1776367281-641692399-18071176871631741-7633312468344820008-n.jpg'
   }
 ];
 

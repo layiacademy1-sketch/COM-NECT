@@ -278,7 +278,7 @@ const AdsCarousel = () => {
   );
 };
 
-const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: string; id: string }) => void }) => {
+const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: string; id?: string; tab?: string }) => void }) => {
   const [events, setEvents] = useState<ComEvent[]>([]);
   const [showComingSoon, setShowComingSoon] = useState(false);
 
@@ -399,11 +399,29 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: strin
               <div className="space-y-4">
                 <div className="bg-black border border-gold-500/30 rounded-full px-5 py-3 flex items-center gap-3 text-text-muted">
                   <Briefcase size={16} className="text-gold-500" />
-                  <input type="text" className="bg-transparent border-none text-white w-full outline-none text-xs placeholder:text-white/20" placeholder="Restaurant, coiffeur, photographe..." onClick={handleComingSoon} readOnly />
+                  <input 
+                    type="text" 
+                    className="bg-transparent border-none text-white w-full outline-none text-xs placeholder:text-white/20 cursor-pointer" 
+                    placeholder="Restaurant, coiffeur, photographe..." 
+                    onClick={() => onNavigate({ type: 'search', tab: 'entreprise' })} 
+                    readOnly 
+                  />
                 </div>
                 <div className="flex gap-3">
-                  <Button variant="primary" className="flex-1 py-2.5 text-xs" onClick={handleComingSoon}>Trouver une entreprise</Button>
-                  <Button variant="outline" className="flex-1 py-2.5 text-xs" onClick={handleComingSoon}>Catégories</Button>
+                  <Button 
+                    variant="primary" 
+                    className="flex-1 py-2.5 text-xs" 
+                    onClick={() => onNavigate({ type: 'search', tab: 'entreprise' })}
+                  >
+                    Trouver une entreprise
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="flex-1 py-2.5 text-xs" 
+                    onClick={() => onNavigate({ type: 'search', tab: 'entreprise' })}
+                  >
+                    Catégories
+                  </Button>
                 </div>
               </div>
             </Panel>
@@ -989,8 +1007,8 @@ const RegistrationSection = () => {
   );
 };
 
-const SearchSection = () => {
-  const [activeTab, setActiveTab] = useState<'particulier' | 'entreprise' | 'association'>('particulier');
+const SearchSection = ({ initialTab }: { initialTab?: 'particulier' | 'entreprise' | 'association' }) => {
+  const [activeTab, setActiveTab] = useState<'particulier' | 'entreprise' | 'association'>(initialTab || 'particulier');
   const [query, setQuery] = useState('');
   const [islandFilter, setIslandFilter] = useState<Island | ''>('');
   const [hasSearched, setHasSearched] = useState(false);
@@ -999,6 +1017,13 @@ const SearchSection = () => {
   const [assocs, setAssocs] = useState<Association[]>([]);
   const [loading, setLoading] = useState(true);
   const [showComingSoon, setShowComingSoon] = useState(false);
+  const [selectedPro, setSelectedPro] = useState<Professional | null>(null);
+
+  useEffect(() => {
+    if (initialTab) {
+      setHasSearched(true);
+    }
+  }, [initialTab]);
 
   useEffect(() => {
     if (showComingSoon) {
@@ -1118,24 +1143,15 @@ const SearchSection = () => {
         <p className="text-text-muted text-lg">Trouvez des membres, des professionnels ou des associations.</p>
         
         <div className="flex justify-center gap-3 mt-8 flex-wrap">
-          <button 
-            onClick={() => setActiveTab('particulier')}
-            className={`px-6 py-2.5 rounded-full font-bold text-xs transition-all uppercase tracking-widest ${activeTab === 'particulier' ? 'bg-gold-500 text-black shadow-lg shadow-gold-500/20' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
-          >
-            Particuliers
-          </button>
-          <button 
-            onClick={() => setActiveTab('entreprise')}
-            className={`px-6 py-2.5 rounded-full font-bold text-xs transition-all uppercase tracking-widest ${activeTab === 'entreprise' ? 'bg-gold-500 text-black shadow-lg shadow-gold-500/20' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
-          >
-            Entreprises
-          </button>
-          <button 
-            onClick={() => setActiveTab('association')}
-            className={`px-6 py-2.5 rounded-full font-bold text-xs transition-all uppercase tracking-widest ${activeTab === 'association' ? 'bg-gold-500 text-black shadow-lg shadow-gold-500/20' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
-          >
-            Associations
-          </button>
+          {(['particulier', 'entreprise', 'association'] as const).map(tab => (
+            <button 
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-6 py-2.5 rounded-full font-bold text-xs transition-all uppercase tracking-widest ${activeTab === tab ? 'bg-gold-500 text-black shadow-lg shadow-gold-500/20' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
+            >
+              {tab === 'particulier' ? 'Particuliers' : tab === 'entreprise' ? 'Entreprises' : 'Associations'}
+            </button>
+          ))}
         </div>
       </header>
 
@@ -1216,7 +1232,7 @@ const SearchSection = () => {
                   "{(item as Person).description}"
                 </p>
               </Card>
-            ) : activeTab === 'professionnel' ? (
+            ) : activeTab === 'entreprise' ? (
               <div key={item.id} className="bg-gray-dark rounded-[24px] panel-border overflow-hidden group cursor-pointer hover:shadow-2xl hover:shadow-gold-500/5 transition-all duration-300">
                 <div className="relative h-48 overflow-hidden">
                   <img src={(item as Professional).image} alt={(item as Professional).name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
@@ -1234,7 +1250,7 @@ const SearchSection = () => {
                     <p className="text-sm text-text-muted flex items-center gap-2"><Globe size={14} className="text-gold-500" /> {(item as Professional).island}</p>
                   </div>
                   <p className="text-sm text-white/40 line-clamp-2 leading-relaxed">{(item as Professional).description}</p>
-                  <Button variant="outline" className="w-full text-xs py-2.5">Voir le profil</Button>
+                  <Button variant="outline" className="w-full text-xs py-2.5" onClick={() => setSelectedPro(item as Professional)}>Voir le profil</Button>
                 </div>
               </div>
             ) : (
@@ -1266,6 +1282,132 @@ const SearchSection = () => {
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {selectedPro && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedPro(null)}
+              className="absolute inset-0 bg-black/95 backdrop-blur-md"
+            />
+            <motion.div 
+              layoutId={selectedPro.id}
+              className="relative w-full max-w-2xl bg-[#0a0a0a] rounded-[2.5rem] overflow-hidden border border-white/10 shadow-3xl overflow-y-auto max-h-[90vh] mx-auto scrollbar-hide"
+            >
+              <button 
+                onClick={() => setSelectedPro(null)}
+                className="absolute top-6 right-6 z-50 w-12 h-12 bg-black/40 backdrop-blur-xl rounded-full flex items-center justify-center text-white hover:bg-gold-500 hover:text-black transition-all border border-white/10 shadow-2xl"
+              >
+                <X size={24} />
+              </button>
+
+              <div className="aspect-[4/3] w-full relative">
+                <img 
+                  src={selectedPro.image} 
+                  alt={selectedPro.name} 
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-linear-to-t from-[#0a0a0a] via-[#0a0a0a]/20 to-transparent" />
+                <div className="absolute bottom-6 left-6 right-6 md:left-10 md:right-10">
+                   <div className="flex items-center gap-2 mb-3">
+                    <span className="px-4 py-1.5 rounded-full bg-gold-500 text-black text-[11px] font-black uppercase tracking-widest shadow-xl shadow-gold-500/30">
+                      {selectedPro.category}
+                    </span>
+                  </div>
+                  <h2 className="text-4xl md:text-5xl font-black text-white leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">{selectedPro.name}</h2>
+                </div>
+              </div>
+
+              <div className="px-6 py-8 md:px-10 md:py-10 space-y-10">
+                <div className="grid grid-cols-2 gap-4 md:gap-8 p-6 bg-white/[0.03] rounded-3xl border border-white/5 shadow-inner">
+                  <div className="space-y-1 text-center md:text-left">
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-gold-500/60 font-black">Localisation</span>
+                    <p className="text-white flex items-center justify-center md:justify-start gap-2 font-bold text-sm md:text-base">
+                      <MapPin size={18} className="text-gold-500" /> {selectedPro.cityFrance}
+                    </p>
+                  </div>
+                  <div className="space-y-1 text-center md:text-left">
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-gold-500/60 font-black">Origine</span>
+                    <p className="text-white flex items-center justify-center md:justify-start gap-2 font-bold text-sm md:text-base">
+                      <Globe size={18} className="text-gold-500" /> {selectedPro.cityComoros}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <h4 className="text-[11px] font-black text-gold-500 uppercase tracking-[0.3em] whitespace-nowrap">À propos</h4>
+                    <div className="h-px bg-gold-500/20 flex-1" />
+                  </div>
+                  <p className="text-white/80 leading-relaxed whitespace-pre-wrap text-base md:text-lg font-medium text-center md:text-left italic border-l-4 border-gold-500/30 pl-4">
+                    {selectedPro.description}
+                  </p>
+                </div>
+
+                <div className="space-y-6">
+                  <h4 className="text-[11px] font-black text-white uppercase tracking-[0.3em] text-center md:text-left">Nous contacter</h4>
+                  <div className="grid grid-cols-1 gap-6">
+                    {selectedPro.website && selectedPro.website.includes('instagram.com') && (
+                      <a 
+                        href={selectedPro.website} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex items-center justify-center gap-4 p-6 bg-linear-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045] rounded-3xl shadow-2xl shadow-red-500/20 hover:scale-[1.02] transition-all group text-white font-black tracking-widest uppercase text-sm"
+                      >
+                        <Instagram size={28} className="group-hover:rotate-12 transition-transform" />
+                        Suivre sur Instagram
+                      </a>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {selectedPro.phone && (
+                        <a href={`tel:${selectedPro.phone}`} className="flex items-center gap-4 p-5 bg-white/5 rounded-3xl border border-white/5 hover:border-gold-500/50 hover:bg-white/[0.08] transition-all group">
+                          <div className="w-12 h-12 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500 group-hover:bg-gold-500 group-hover:text-black transition-all">
+                            <Phone size={22} />
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Téléphone</p>
+                            <p className="text-white font-black text-sm">{selectedPro.phone}</p>
+                          </div>
+                        </a>
+                      )}
+                      
+                      {selectedPro.email && (
+                        <a href={`mailto:${selectedPro.email}`} className="flex items-center gap-4 p-5 bg-white/5 rounded-3xl border border-white/5 hover:border-gold-500/50 hover:bg-white/[0.08] transition-all group overflow-hidden">
+                          <div className="w-12 h-12 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500 group-hover:bg-gold-500 group-hover:text-black transition-all">
+                            <Send size={22} />
+                          </div>
+                          <div className="truncate">
+                            <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Email</p>
+                            <p className="text-white font-black text-sm truncate">{selectedPro.email}</p>
+                          </div>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-6 relative text-center">
+                  <div className="absolute -inset-4 bg-gold-500/5 blur-3xl rounded-full" />
+                  <Button 
+                    variant="primary" 
+                    className="w-full py-6 rounded-2xl text-lg font-black shadow-2xl shadow-gold-500/40 tracking-[0.2em] relative" 
+                    onClick={() => {
+                      if (selectedPro.phone) window.open(`tel:${selectedPro.phone}`, '_blank');
+                    }}
+                  >
+                    CONTACTER MAINTENANT
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -1521,7 +1663,7 @@ const EventsSection = () => {
 // --- Main App ---
 
 export default function App() {
-  const [view, setView] = useState<string | { type: string; id: string }>('home');
+  const [view, setView] = useState<string | { type: string; id?: string; tab?: string }>('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
@@ -1552,7 +1694,7 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  const handleNavigate = (newView: string | { type: string; id: string }) => {
+  const handleNavigate = (newView: string | { type: string; id?: string; tab?: string }) => {
     setView(newView);
     setIsMenuOpen(false);
   };
@@ -1679,7 +1821,9 @@ export default function App() {
               {view === 'login' && <LoginSection onLoginSuccess={() => { setIsAuthenticated(true); setView('home'); }} />}
               {view === 'boutique' && <BoutiqueSection />}
               {view === 'register' && <RegistrationSection />}
-              {view === 'search' && <SearchSection />}
+              {((typeof view === 'string' && view === 'search') || (typeof view !== 'string' && view.type === 'search')) && (
+                <SearchSection initialTab={typeof view !== 'string' && view.type === 'search' ? (view as any).tab : undefined} />
+              )}
               {view === 'events' && <EventsSection />}
               {view === 'cities' && <CitiesSection onNavigate={(id) => handleNavigate({ type: 'city', id })} />}
               {typeof view !== 'string' && view.type === 'city' && (

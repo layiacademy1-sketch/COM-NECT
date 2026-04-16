@@ -25,12 +25,15 @@ export interface Person {
 export interface Professional {
   id: string;
   name: string;
-  category: 'restaurant' | 'coiffeur' | 'boutique' | 'photographe' | 'transport' | 'autre';
+  category: 'restaurant' | 'coiffeur' | 'boutique' | 'photographe' | 'transport' | 'web/digital' | 'autre';
   island: Island;
   cityFrance: string;
   cityComoros: string;
   description: string;
   image: string;
+  email?: string;
+  phone?: string;
+  website?: string;
 }
 
 export interface Event {
