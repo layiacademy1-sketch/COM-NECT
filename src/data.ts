@@ -155,6 +155,7 @@ export const MOCK_ASSOCIATIONS: Association[] = [
     id: '1',
     name: 'Amicale de Moroni',
     city: 'Moroni',
+    island: 'Grande Comore',
     description: 'Association culturelle et sociale pour les ressortissants de Moroni.',
     logo: 'https://picsum.photos/seed/assoc1/100/100'
   },
@@ -162,6 +163,7 @@ export const MOCK_ASSOCIATIONS: Association[] = [
     id: '2',
     name: 'Jeunesse Fomboni',
     city: 'Fomboni',
+    island: 'Mohéli',
     description: 'Promotion du sport et de l\'éducation à Fomboni.',
     logo: 'https://picsum.photos/seed/assoc2/100/100'
   }

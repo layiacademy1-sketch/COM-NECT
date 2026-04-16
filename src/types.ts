@@ -48,6 +48,7 @@ export interface Association {
   id: string;
   name: string;
   city: string;
+  island: Island;
   description: string;
   logo?: string;
 }
