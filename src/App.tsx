@@ -392,14 +392,14 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: strin
               </div>
             </Panel>
 
-            <Panel title="Trouver un professionnel">
+            <Panel title="Trouver une entreprise">
               <div className="space-y-4">
                 <div className="bg-black border border-gold-500/30 rounded-full px-5 py-3 flex items-center gap-3 text-text-muted">
                   <Briefcase size={16} className="text-gold-500" />
                   <input type="text" className="bg-transparent border-none text-white w-full outline-none text-xs placeholder:text-white/20" placeholder="Restaurant, coiffeur, photographe..." onClick={handleComingSoon} readOnly />
                 </div>
                 <div className="flex gap-3">
-                  <Button variant="primary" className="flex-1 py-2.5 text-xs" onClick={handleComingSoon}>Trouver un pro</Button>
+                  <Button variant="primary" className="flex-1 py-2.5 text-xs" onClick={handleComingSoon}>Trouver une entreprise</Button>
                   <Button variant="outline" className="flex-1 py-2.5 text-xs" onClick={handleComingSoon}>Catégories</Button>
                 </div>
               </div>
@@ -597,7 +597,7 @@ const BoutiqueSection = () => {
 };
 
 const RegistrationSection = () => {
-  const [activeTab, setActiveTab] = useState<'particulier' | 'professionnel' | 'association'>('particulier');
+  const [activeTab, setActiveTab] = useState<'particulier' | 'entreprise' | 'association'>('particulier');
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -619,7 +619,7 @@ const RegistrationSection = () => {
     description: ''
   });
 
-  const [proData, setProData] = useState({
+  const [entData, setEntData] = useState({
     name: '',
     email: '',
     phone: '',
@@ -693,10 +693,10 @@ const RegistrationSection = () => {
             Particulier
           </button>
           <button 
-            onClick={() => setActiveTab('professionnel')}
-            className={`px-6 py-2.5 rounded-full font-bold text-xs transition-all uppercase tracking-widest ${activeTab === 'professionnel' ? 'bg-gold-500 text-black shadow-lg shadow-gold-500/20' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
+            onClick={() => setActiveTab('entreprise')}
+            className={`px-6 py-2.5 rounded-full font-bold text-xs transition-all uppercase tracking-widest ${activeTab === 'entreprise' ? 'bg-gold-500 text-black shadow-lg shadow-gold-500/20' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
           >
-            Professionnel
+            Entreprise
           </button>
           <button 
             onClick={() => setActiveTab('association')}
@@ -748,32 +748,32 @@ const RegistrationSection = () => {
         </form>
       )}
 
-      {activeTab === 'professionnel' && (
-        <form onSubmit={(e) => { e.preventDefault(); handleSubmit('professionnel', proData); }} className="space-y-8">
-          <Panel title="Informations Professionnelles">
+      {activeTab === 'entreprise' && (
+        <form onSubmit={(e) => { e.preventDefault(); handleSubmit('entreprise', entData); }} className="space-y-8">
+          <Panel title="Informations Entreprise">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Nom de l'activité *" required value={proData.name} onChange={(e: any) => setProData({...proData, name: e.target.value})} />
-              <Input label="Adresse Mail" type="email" value={proData.email} onChange={(e: any) => setProData({...proData, email: e.target.value})} />
-              <Input label="Numéro de téléphone" type="tel" value={proData.phone} onChange={(e: any) => setProData({...proData, phone: e.target.value})} />
-              <Input label="Site internet" type="url" placeholder="https://..." value={proData.website} onChange={(e: any) => setProData({...proData, website: e.target.value})} />
+              <Input label="Nom de l'entreprise *" required value={entData.name} onChange={(e: any) => setEntData({...entData, name: e.target.value})} />
+              <Input label="Adresse Mail" type="email" value={entData.email} onChange={(e: any) => setEntData({...entData, email: e.target.value})} />
+              <Input label="Numéro de téléphone" type="tel" value={entData.phone} onChange={(e: any) => setEntData({...entData, phone: e.target.value})} />
+              <Input label="Site internet" type="url" placeholder="https://..." value={entData.website} onChange={(e: any) => setEntData({...entData, website: e.target.value})} />
             </div>
           </Panel>
 
           <Panel title="Localisation">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Pays actuel *" required value={proData.country} onChange={(e: any) => setProData({...proData, country: e.target.value})} />
-              <Input label="Ville résidence actuelle *" required value={proData.cityResidence} onChange={(e: any) => setProData({...proData, cityResidence: e.target.value})} />
-              <Select label="Île *" required options={['Grande Comore', 'Mayotte', 'Anjouan', 'Mohéli', 'Les 4 îles']} value={proData.island} onChange={(e: any) => setProData({...proData, island: e.target.value})} />
-              <Input label="Ville aux Comores" value={proData.cityComoros} onChange={(e: any) => setProData({...proData, cityComoros: e.target.value})} />
+              <Input label="Pays actuel *" required value={entData.country} onChange={(e: any) => setEntData({...entData, country: e.target.value})} />
+              <Input label="Ville résidence actuelle *" required value={entData.cityResidence} onChange={(e: any) => setEntData({...entData, cityResidence: e.target.value})} />
+              <Select label="Île *" required options={['Grande Comore', 'Mayotte', 'Anjouan', 'Mohéli', 'Les 4 îles']} value={entData.island} onChange={(e: any) => setEntData({...entData, island: e.target.value})} />
+              <Input label="Ville aux Comores" value={entData.cityComoros} onChange={(e: any) => setEntData({...entData, cityComoros: e.target.value})} />
             </div>
           </Panel>
 
           <Panel title="Présentation">
-            <textarea rows={4} className="w-full bg-black border border-gold-500/30 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-gold-500 transition-colors text-sm" placeholder="Décrivez votre activité..." value={proData.description} onChange={(e) => setProData({...proData, description: e.target.value})} />
+            <textarea rows={4} className="w-full bg-black border border-gold-500/30 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-gold-500 transition-colors text-sm" placeholder="Décrivez votre entreprise..." value={entData.description} onChange={(e) => setEntData({...entData, description: e.target.value})} />
           </Panel>
 
           <Button type="submit" variant="primary" className="w-full py-5 text-lg">
-            <Send size={20} /> S'enregistrer (Professionnel)
+            <Send size={20} /> S'enregistrer (Entreprise)
           </Button>
         </form>
       )}
@@ -812,7 +812,7 @@ const RegistrationSection = () => {
 };
 
 const SearchSection = () => {
-  const [activeTab, setActiveTab] = useState<'particulier' | 'professionnel' | 'association'>('particulier');
+  const [activeTab, setActiveTab] = useState<'particulier' | 'entreprise' | 'association'>('particulier');
   const [query, setQuery] = useState('');
   const [islandFilter, setIslandFilter] = useState<Island | ''>('');
   const [hasSearched, setHasSearched] = useState(false);
@@ -947,10 +947,10 @@ const SearchSection = () => {
             Particuliers
           </button>
           <button 
-            onClick={() => setActiveTab('professionnel')}
-            className={`px-6 py-2.5 rounded-full font-bold text-xs transition-all uppercase tracking-widest ${activeTab === 'professionnel' ? 'bg-gold-500 text-black shadow-lg shadow-gold-500/20' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
+            onClick={() => setActiveTab('entreprise')}
+            className={`px-6 py-2.5 rounded-full font-bold text-xs transition-all uppercase tracking-widest ${activeTab === 'entreprise' ? 'bg-gold-500 text-black shadow-lg shadow-gold-500/20' : 'bg-white/5 text-white/60 hover:bg-white/10'}`}
           >
-            Professionnels
+            Entreprises
           </button>
           <button 
             onClick={() => setActiveTab('association')}
@@ -967,7 +967,7 @@ const SearchSection = () => {
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gold-500" size={18} />
             <input 
               type="text"
-              placeholder={activeTab === 'particulier' ? "Nom, ville ou mot-clé..." : activeTab === 'professionnel' ? "Activité, ville..." : "Association, ville..."}
+              placeholder={activeTab === 'particulier' ? "Nom, ville ou mot-clé..." : activeTab === 'entreprise' ? "Activité, ville..." : "Association, ville..."}
               className="w-full bg-black border border-gold-500/30 rounded-full pl-12 pr-5 py-4 text-white focus:outline-none focus:border-gold-500 transition-colors text-sm"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -996,10 +996,10 @@ const SearchSection = () => {
             <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto text-gold-500/20">
               {activeTab === 'particulier' ? <Search size={40} /> : activeTab === 'professionnel' ? <Briefcase size={40} /> : <Globe size={40} />}
             </div>
-            <p className="text-text-muted text-lg">Lancez une recherche pour voir les {activeTab === 'particulier' ? 'profils' : activeTab === 'professionnel' ? 'professionnels' : 'associations'} disponibles</p>
+            <p className="text-text-muted text-lg">Lancez une recherche pour voir les {activeTab === 'particulier' ? 'profils' : activeTab === 'entreprise' ? 'entreprises' : 'associations'} disponibles</p>
           </div>
-        ) : (activeTab === 'particulier' ? peopleResults : activeTab === 'professionnel' ? proResults : assocResults).length > 0 ? (
-          (activeTab === 'particulier' ? peopleResults : activeTab === 'professionnel' ? proResults : assocResults).map(item => (
+        ) : (activeTab === 'particulier' ? peopleResults : activeTab === 'entreprise' ? proResults : assocResults).length > 0 ? (
+          (activeTab === 'particulier' ? peopleResults : activeTab === 'entreprise' ? proResults : assocResults).map(item => (
             activeTab === 'particulier' ? (
               <Card key={item.id} className="space-y-6 group">
                 <div className="flex justify-between items-start">
