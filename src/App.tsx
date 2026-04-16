@@ -12,6 +12,7 @@ import {
   Calendar, 
   Home, 
   ChevronRight, 
+  ChevronLeft,
   Instagram, 
   MessageCircle, 
   MapPin, 
@@ -20,7 +21,9 @@ import {
   X,
   ArrowRight,
   Phone,
-  Send
+  Send,
+  User,
+  Lock
 } from 'lucide-react';
 import { MOCK_PEOPLE, MOCK_PROFESSIONALS, MOCK_EVENTS, MOCK_CITIES, MOCK_ASSOCIATIONS, MOCK_ADS } from './data';
 import { Island, Person, Professional, Event as ComEvent, City, Association, Ad } from './types';
@@ -118,53 +121,84 @@ const Select = ({ label, options, ...props }: { label: string; options: string[]
 
 const AdsCarousel = () => {
   const [isPaused, setIsPaused] = useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   // Duplicate ads for infinite scroll effect
   const ads = [...MOCK_ADS, ...MOCK_ADS, ...MOCK_ADS];
 
+  const scroll = (direction: 'left' | 'right') => {
+    if (containerRef.current) {
+      const scrollAmount = 300;
+      containerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
-    <div className="w-full overflow-hidden py-8 relative">
-      <div className="absolute left-0 top-0 bottom-0 w-20 bg-linear-to-r from-black to-transparent z-10" />
-      <div className="absolute right-0 top-0 bottom-0 w-20 bg-linear-to-l from-black to-transparent z-10" />
+    <div className="w-full py-8 relative group/carousel">
+      {/* Gradient Overlays */}
+      <div className="absolute left-0 top-0 bottom-0 w-20 bg-linear-to-r from-black to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-20 bg-linear-to-l from-black to-transparent z-10 pointer-events-none" />
       
-      <motion.div 
-        className="flex gap-6 w-max"
-        animate={isPaused ? {} : { x: ["0%", "-33.33%"] }}
-        transition={{ 
-          duration: 30, 
-          repeat: Infinity, 
-          ease: "linear" 
-        }}
+      {/* Navigation Cursors */}
+      <button 
+        onClick={() => scroll('left')}
+        className="absolute left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/50 border border-gold-500/30 flex items-center justify-center text-gold-500 opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-gold-500 hover:text-black shadow-2xl backdrop-blur-sm"
+      >
+        <ChevronLeft size={24} />
+      </button>
+      <button 
+        onClick={() => scroll('right')}
+        className="absolute right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/50 border border-gold-500/30 flex items-center justify-center text-gold-500 opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-gold-500 hover:text-black shadow-2xl backdrop-blur-sm"
+      >
+        <ChevronRight size={24} />
+      </button>
+
+      <div 
+        ref={containerRef}
+        className="w-full overflow-x-auto no-scrollbar flex gap-6 px-10"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={() => setIsPaused(true)}
         onTouchEnd={() => setIsPaused(false)}
       >
-        {ads.map((ad, idx) => (
-          <div 
-            key={`${ad.id}-${idx}`}
-            onClick={() => ad.link !== '#' && window.open(ad.link, '_blank')}
-            className="w-48 h-64 bg-gray-dark rounded-2xl panel-border overflow-hidden relative group cursor-pointer hover:shadow-2xl hover:shadow-gold-500/10 transition-all duration-300 shrink-0"
-          >
-            {/* Diagonal Ribbon */}
-            <div className="absolute top-3 -right-8 bg-gold-500 text-black text-[8px] font-black py-1 px-10 rotate-45 z-20 shadow-lg uppercase tracking-tighter">
-              Sponsorisé
-            </div>
+        <motion.div 
+          className="flex gap-6 w-max"
+          animate={isPaused ? {} : { x: ["0%", "-33.33%"] }}
+          transition={{ 
+            duration: 30, 
+            repeat: Infinity, 
+            ease: "linear" 
+          }}
+        >
+          {ads.map((ad, idx) => (
+            <div 
+              key={`${ad.id}-${idx}`}
+              onClick={() => ad.link !== '#' && window.open(ad.link, '_blank')}
+              className="w-48 h-64 bg-gray-dark rounded-2xl panel-border overflow-hidden relative group cursor-pointer hover:shadow-2xl hover:shadow-gold-500/10 transition-all duration-300 shrink-0"
+            >
+              {/* Diagonal Ribbon */}
+              <div className="absolute top-3 -right-8 bg-gold-500 text-black text-[8px] font-black py-1 px-10 rotate-45 z-20 shadow-lg uppercase tracking-tighter">
+                Sponsorisé
+              </div>
 
-            <div className="h-2/3 overflow-hidden">
-              <img src={ad.image} alt={ad.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
-            </div>
-            
-            <div className="p-4 bg-linear-to-b from-gray-dark/80 to-gray-dark">
-              <h4 className="text-sm font-bold text-white group-hover:text-gold-500 transition-colors line-clamp-1">{ad.title}</h4>
-              <p className="text-[10px] text-text-muted mt-1 line-clamp-1">{ad.subtitle}</p>
-              <div className="mt-2 flex items-center text-[8px] font-bold text-gold-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
-                Visiter <ChevronRight size={10} className="ml-1" />
+              <div className="h-2/3 overflow-hidden">
+                <img src={ad.image} alt={ad.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
+              </div>
+              
+              <div className="p-4 bg-linear-to-b from-gray-dark/80 to-gray-dark">
+                <h4 className="text-sm font-bold text-white group-hover:text-gold-500 transition-colors line-clamp-1">{ad.title}</h4>
+                <p className="text-[10px] text-text-muted mt-1 line-clamp-1">{ad.subtitle}</p>
+                <div className="mt-2 flex items-center text-[8px] font-bold text-gold-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                  Visiter <ChevronRight size={10} className="ml-1" />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </motion.div>
+          ))}
+        </motion.div>
+      </div>
     </div>
   );
 };
@@ -185,8 +219,11 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: strin
         </div>
       </div>
       <div className="space-y-2">
-        <h1 className="text-4xl md:text-5xl font-bold gold-text tracking-tight">Bienvenue sur COM-NECT</h1>
-        <p className="text-text-muted text-lg max-w-2xl leading-relaxed mx-auto">
+        <h1 className="text-3xl md:text-4xl font-bold gold-text tracking-tight flex flex-col items-center">
+          <span>BIENVENUE SUR</span>
+          <span className="text-4xl md:text-5xl mt-2">COM-NECT</span>
+        </h1>
+        <p className="text-text-muted text-base max-w-2xl leading-relaxed mx-auto">
           Reliez-vous à vos racines. Retrouvez vos proches de Grande-Comore, Mayotte, Anjouan et Mohéli partout en France.
         </p>
       </div>
@@ -210,27 +247,15 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: strin
           </div>
         </Panel>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Panel title="Trouver une ville" className="h-full">
-            <div className="space-y-4">
-              <div className="bg-black border border-gold-500/30 rounded-full px-5 py-3 flex items-center gap-3 text-text-muted">
-                <MapPin size={16} className="text-gold-500" />
-                <input type="text" className="bg-transparent border-none text-white w-full outline-none text-xs placeholder:text-white/20" placeholder="Ville (ex: Moroni)..." onClick={() => onNavigate('cities')} readOnly />
-              </div>
-              <Button variant="primary" className="w-full py-2.5 text-xs" onClick={() => onNavigate('cities')}>Explorer</Button>
+        <Panel title="Trouver un membre">
+          <div className="space-y-4">
+            <div className="bg-black border border-gold-500/30 rounded-full px-5 py-3 flex items-center gap-3 text-text-muted">
+              <Search size={16} className="text-gold-500" />
+              <input type="text" className="bg-transparent border-none text-white w-full outline-none text-xs placeholder:text-white/20" placeholder="Nom, ville, île..." onClick={() => onNavigate('search')} readOnly />
             </div>
-          </Panel>
-
-          <Panel title="Trouver un membre" className="h-full">
-            <div className="space-y-4">
-              <div className="bg-black border border-gold-500/30 rounded-full px-5 py-3 flex items-center gap-3 text-text-muted">
-                <Search size={16} className="text-gold-500" />
-                <input type="text" className="bg-transparent border-none text-white w-full outline-none text-xs placeholder:text-white/20" placeholder="Nom, ville, île..." onClick={() => onNavigate('search')} readOnly />
-              </div>
-              <Button variant="primary" className="w-full py-2.5 text-xs" onClick={() => onNavigate('search')}>Rechercher</Button>
-            </div>
-          </Panel>
-        </div>
+            <Button variant="primary" className="w-full py-2.5 text-xs" onClick={() => onNavigate('search')}>Rechercher</Button>
+          </div>
+        </Panel>
 
         <Panel title="Trouver un professionnel">
           <div className="space-y-4">
@@ -268,6 +293,84 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: strin
     </div>
   </div>
 );
+
+const LoginSection = ({ onLoginSuccess }: { onLoginSuccess: () => void }) => {
+  const [pseudo, setPseudo] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simulation d'authentification
+    // Pour l'instant, on accepte n'importe quel pseudo/password non vide
+    if (pseudo.trim() && password.trim()) {
+      const session = {
+        pseudo,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('comnect_auth', JSON.stringify(session));
+      onLoginSuccess();
+    } else {
+      setError('Veuillez entrer votre pseudo et mot de passe.');
+    }
+  };
+
+  return (
+    <div className="min-h-[60vh] flex items-center justify-center px-4">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="w-full max-w-md bg-gray-dark panel-border p-8 rounded-3xl space-y-8 shadow-2xl"
+      >
+        <div className="text-center space-y-2">
+          <div className="w-16 h-16 rounded-2xl border-2 border-gold-500 flex items-center justify-center text-gold-500 font-bold text-2xl mx-auto mb-4">C</div>
+          <h2 className="text-2xl font-bold gold-text">Espace Membre</h2>
+          <p className="text-text-muted text-sm">Connectez-vous pour accéder à la recherche</p>
+        </div>
+
+        <form onSubmit={handleLogin} className="space-y-5">
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-gold-500/70 ml-1">Pseudo</label>
+            <div className="relative group">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gold-500/50 group-focus-within:text-gold-500 transition-colors" size={18} />
+              <input 
+                type="text" 
+                value={pseudo}
+                onChange={(e) => setPseudo(e.target.value)}
+                className="w-full bg-black border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white outline-none focus:border-gold-500 transition-all"
+                placeholder="Votre pseudo"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-gold-500/70 ml-1">Mot de passe</label>
+            <div className="relative group">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gold-500/50 group-focus-within:text-gold-500 transition-colors" size={18} />
+              <input 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-black border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white outline-none focus:border-gold-500 transition-all"
+                placeholder="••••••••"
+              />
+            </div>
+          </div>
+
+          {error && <p className="text-red-500 text-xs text-center font-medium">{error}</p>}
+
+          <Button variant="primary" className="w-full py-4 rounded-2xl text-base font-bold" type="submit">
+            Se connecter
+          </Button>
+        </form>
+
+        <p className="text-center text-xs text-text-muted">
+          Pas encore de compte ? <span className="text-gold-500 cursor-pointer hover:underline">Contactez l'administrateur</span>
+        </p>
+      </motion.div>
+    </div>
+  );
+};
 
 const RegistrationSection = () => {
   const [activeTab, setActiveTab] = useState<'particulier' | 'professionnel'>('particulier');
@@ -1010,16 +1113,60 @@ const EventsSection = () => {
 export default function App() {
   const [view, setView] = useState<string | { type: string; id: string }>('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check session on mount
+  useEffect(() => {
+    const checkAuth = () => {
+      const sessionStr = localStorage.getItem('comnect_auth');
+      if (sessionStr) {
+        const session = JSON.parse(sessionStr);
+        const twoHours = 2 * 60 * 60 * 1000;
+        if (Date.now() - session.timestamp < twoHours) {
+          setIsAuthenticated(true);
+        } else {
+          localStorage.removeItem('comnect_auth');
+          setIsAuthenticated(false);
+        }
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const handleNavigate = (newView: string | { type: string; id: string }) => {
+    const viewId = typeof newView === 'string' ? newView : newView.id;
+    
+    // Vérification de la session (2h)
+    const sessionStr = localStorage.getItem('comnect_auth');
+    let isStillAuth = false;
+    
+    if (sessionStr) {
+      const session = JSON.parse(sessionStr);
+      const twoHours = 2 * 60 * 60 * 1000;
+      if (Date.now() - session.timestamp < twoHours) {
+        isStillAuth = true;
+      } else {
+        localStorage.removeItem('comnect_auth');
+        setIsAuthenticated(false);
+      }
+    }
+
+    // Protection de la vue recherche
+    if (viewId === 'search' && !isStillAuth) {
+      setView('login');
+    } else {
+      setView(newView);
+    }
+    setIsMenuOpen(false);
+  };
 
   // Scroll to top on view change
   useEffect(() => {
     window.scrollTo(0, 0);
-    setIsMenuOpen(false);
   }, [view]);
 
   const navItems = [
     { id: 'home', label: 'Accueil', icon: Home },
-    { id: 'cities', label: 'Villes', icon: MapPin },
     { id: 'search', label: 'Recherche', icon: Search },
     { id: 'events', label: 'Évènements', icon: Calendar },
     { id: 'register', label: 'S\'enregistrer', icon: UserPlus },
@@ -1035,16 +1182,16 @@ export default function App() {
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-[280px] bg-gray-dark sidebar-border flex-col p-10 justify-between sticky top-0 h-screen">
         <div className="space-y-12">
-          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setView('home')}>
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => handleNavigate('home')}>
             <div className="w-8 h-8 rounded-lg border-2 border-gold-500 flex items-center justify-center text-gold-500 font-bold text-sm group-hover:bg-gold-500 group-hover:text-black transition-all">C</div>
-            <span className="text-2xl font-extrabold text-gold-500 tracking-tighter">COM-NECT</span>
+            <span className="text-xl font-extrabold text-gold-500 tracking-tighter">COM-NECT</span>
           </div>
           
           <nav className="space-y-3">
             {navItems.map(item => (
               <button
                 key={item.id}
-                onClick={() => setView(item.id)}
+                onClick={() => handleNavigate(item.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all duration-200 text-sm ${
                   view === item.id 
                     ? 'bg-linear-to-br from-gold-500 to-gold-600 text-black shadow-lg shadow-gold-500/20' 
@@ -1067,9 +1214,9 @@ export default function App() {
 
       {/* Mobile Header */}
       <header className="md:hidden flex items-center justify-between px-6 py-4 glass sticky top-0 z-50">
-        <div className="flex items-center gap-2" onClick={() => setView('home')}>
+        <div className="flex items-center gap-2" onClick={() => handleNavigate('home')}>
           <div className="w-8 h-8 rounded-lg border-2 border-gold-500 flex items-center justify-center text-gold-500 font-bold">C</div>
-          <span className="text-xl font-bold text-gold-500 tracking-tight">COM-NECT</span>
+          <span className="text-lg font-bold text-gold-500 tracking-tight">COM-NECT</span>
         </div>
         <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-white">
           {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -1089,7 +1236,7 @@ export default function App() {
               {navItems.map(item => (
                 <button
                   key={item.id}
-                  onClick={() => setView(item.id)}
+                  onClick={() => handleNavigate(item.id)}
                   className={`flex items-center gap-4 p-4 rounded-2xl text-xl font-semibold transition-all ${
                     view === item.id ? 'bg-gold-500 text-black' : 'text-white/80'
                   }`}
@@ -1114,13 +1261,14 @@ export default function App() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              {view === 'home' && <HomeSection onNavigate={setView} />}
+              {view === 'home' && <HomeSection onNavigate={handleNavigate} />}
+              {view === 'login' && <LoginSection onLoginSuccess={() => { setIsAuthenticated(true); setView('search'); }} />}
               {view === 'register' && <RegistrationSection />}
               {view === 'search' && <SearchSection />}
               {view === 'events' && <EventsSection />}
-              {view === 'cities' && <CitiesSection onNavigate={(id) => setView({ type: 'city', id })} />}
+              {view === 'cities' && <CitiesSection onNavigate={(id) => handleNavigate({ type: 'city', id })} />}
               {typeof view !== 'string' && view.type === 'city' && (
-                <CityDetailSection cityId={view.id} onBack={() => setView('cities')} />
+                <CityDetailSection cityId={view.id} onBack={() => handleNavigate('cities')} />
               )}
             </motion.div>
           </AnimatePresence>
@@ -1144,7 +1292,7 @@ export default function App() {
         {navItems.map(item => (
           <button
             key={item.id}
-            onClick={() => setView(item.id)}
+            onClick={() => handleNavigate(item.id)}
             className={`flex flex-col items-center gap-1 transition-all ${view === item.id ? 'text-gold-500 scale-110' : 'text-white/40'}`}
           >
             <item.icon size={20} />

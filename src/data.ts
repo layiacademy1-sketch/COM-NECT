@@ -3,38 +3,31 @@ import { Person, Professional, Event, Association, City, Ad } from './types';
 export const MOCK_ADS: Ad[] = [
   {
     id: '1',
-    title: 'Layi Academy',
-    subtitle: 'Formation Snapchat',
-    image: 'https://picsum.photos/seed/layi/300/400',
-    link: 'https://layi-academy.fr'
+    title: 'ZORA BEAUTY',
+    subtitle: 'Beauté et mode',
+    image: 'https://image.noelshack.com/fichiers/2026/16/4/1776303766-generated-image-april-16-2026-3-38am.png',
+    link: 'https://snapchat.com/t/7oq8cRqv'
   },
   {
     id: '2',
-    title: 'ZYRO',
-    subtitle: 'Vêtements Premium',
-    image: 'https://picsum.photos/seed/zyro/300/400',
-    link: 'https://zyro.fr'
+    title: 'ZEYRO',
+    subtitle: 'Création de maillot',
+    image: 'https://image.noelshack.com/fichiers/2026/16/4/1776302915-chatgpt-image-16-avr-2026-03-28-25.jpg',
+    link: 'https://le-zeyro.com/'
   },
   {
     id: '3',
-    title: 'Chaussures Comores',
-    subtitle: 'Collection exclusive',
-    image: 'https://picsum.photos/seed/shoes/300/400',
-    link: '#'
+    title: 'LAYI AGENCY',
+    subtitle: 'Passer votre compte Snapchat en professionnel.',
+    image: 'https://image.noelshack.com/fichiers/2026/16/4/1776304295-photo-2026-04-16-03-50-41.jpg',
+    link: 'https://www.snapchat.com/add/layiagency'
   },
   {
     id: '4',
-    title: 'Immo-Connect',
-    subtitle: 'Investir au pays',
-    image: 'https://picsum.photos/seed/immo/300/400',
-    link: '#'
-  },
-  {
-    id: '5',
-    title: 'Air Comores',
-    subtitle: 'Vols directs',
-    image: 'https://picsum.photos/seed/plane/300/400',
-    link: '#'
+    title: 'LA PLUME DE LA REUSSITE',
+    subtitle: "Cours d'arabe",
+    image: 'https://image.noelshack.com/fichiers/2026/16/4/1776305166-photo-2026-04-16-04-05-17.jpg',
+    link: 'https://wa.me/33695826065'
   }
 ];
 
