@@ -28,6 +28,13 @@ export const MOCK_ADS: Ad[] = [
     subtitle: "Cours d'arabe",
     image: 'https://image.noelshack.com/fichiers/2026/16/4/1776305166-photo-2026-04-16-04-05-17.jpg',
     link: 'https://wa.me/33695826065'
+  },
+  {
+    id: '5',
+    title: 'C269',
+    subtitle: 'Le sport aux Comores en temps réel.',
+    image: 'https://image.noelshack.com/fichiers/2026/16/4/1776342293-photo-2026-04-16-14-23-56.jpg',
+    link: 'https://www.facebook.com/c269.fr'
   }
 ];
 

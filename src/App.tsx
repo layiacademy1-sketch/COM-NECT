@@ -25,7 +25,8 @@ import {
   User,
   Lock,
   LogOut,
-  ShoppingBag
+  ShoppingBag,
+  Info
 } from 'lucide-react';
 import { 
   signInWithEmailAndPassword, 
@@ -276,6 +277,16 @@ const AdsCarousel = () => {
 
 const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: string; id: string }) => void }) => {
   const [events, setEvents] = useState<ComEvent[]>([]);
+  const [showComingSoon, setShowComingSoon] = useState(false);
+
+  useEffect(() => {
+    if (showComingSoon) {
+      const timer = setTimeout(() => setShowComingSoon(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showComingSoon]);
+
+  const handleComingSoon = () => setShowComingSoon(true);
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'events'), (snapshot) => {
@@ -288,7 +299,21 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: strin
   const displayEvents = events.length > 0 ? events.slice(0, 4) : MOCK_EVENTS.slice(0, 4);
 
   return (
-    <div className="space-y-10 pb-24">
+    <div className="space-y-10 pb-24 relative">
+      {/* Coming Soon Toast */}
+      <AnimatePresence>
+        {showComingSoon && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 20, x: '-50%' }}
+            className="fixed bottom-10 left-1/2 z-50 bg-gold-500 text-black px-6 py-3 rounded-full font-bold shadow-2xl flex items-center gap-2"
+          >
+            <Info size={18} /> Bientôt disponible
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hero */}
       <header className="hero flex flex-col items-center text-center space-y-6">
         <div className="relative group">
@@ -310,6 +335,15 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: strin
           <p className="text-text-muted text-base max-w-2xl leading-relaxed mx-auto">
             Reliez-vous à vos racines. Retrouvez vos proches de Grande-Comore, Mayotte, Anjouan et Mohéli partout en France.
           </p>
+          <div className="pt-4 flex justify-center">
+            <Button 
+              variant="gold" 
+              className="px-10 py-4 text-sm font-bold uppercase tracking-widest rounded-full shadow-xl shadow-gold-500/20 hover:scale-105 transition-transform" 
+              onClick={() => onNavigate('register')}
+            >
+              M'enregistrer
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -331,16 +365,16 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: strin
             </div>
           </Panel>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6">
             <Panel title="Trouver une personne">
               <div className="space-y-4">
                 <div className="bg-black border border-gold-500/30 rounded-full px-5 py-3 flex items-center gap-3 text-text-muted">
                   <Search size={16} className="text-gold-500" />
-                  <input type="text" className="bg-transparent border-none text-white w-full outline-none text-xs placeholder:text-white/20" placeholder="Nom, ville, île..." onClick={() => onNavigate('search')} readOnly />
+                  <input type="text" className="bg-transparent border-none text-white w-full outline-none text-xs placeholder:text-white/20" placeholder="Nom, ville, île..." onClick={handleComingSoon} readOnly />
                 </div>
                 <div className="flex gap-3">
-                  <Button variant="primary" className="flex-1 py-2.5 text-xs" onClick={() => onNavigate('search')}>Rechercher</Button>
-                  <Button variant="outline" className="flex-1 py-2.5 text-xs" onClick={() => onNavigate('search')}>Filtres</Button>
+                  <Button variant="primary" className="flex-1 py-2.5 text-xs" onClick={handleComingSoon}>Rechercher</Button>
+                  <Button variant="outline" className="flex-1 py-2.5 text-xs" onClick={handleComingSoon}>Filtres</Button>
                 </div>
               </div>
             </Panel>
@@ -349,11 +383,11 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: strin
               <div className="space-y-4">
                 <div className="bg-black border border-gold-500/30 rounded-full px-5 py-3 flex items-center gap-3 text-text-muted">
                   <Globe size={16} className="text-gold-500" />
-                  <input type="text" className="bg-transparent border-none text-white w-full outline-none text-xs placeholder:text-white/20" placeholder="Ville ou mot clé..." onClick={() => onNavigate('search')} readOnly />
+                  <input type="text" className="bg-transparent border-none text-white w-full outline-none text-xs placeholder:text-white/20" placeholder="Ville ou mot clé..." onClick={handleComingSoon} readOnly />
                 </div>
                 <div className="flex gap-3">
-                  <Button variant="primary" className="flex-1 py-2.5 text-xs" onClick={() => onNavigate('search')}>Rechercher</Button>
-                  <Button variant="outline" className="flex-1 py-2.5 text-xs" onClick={() => onNavigate('search')}>Villes</Button>
+                  <Button variant="primary" className="flex-1 py-2.5 text-xs" onClick={handleComingSoon}>Rechercher</Button>
+                  <Button variant="outline" className="flex-1 py-2.5 text-xs" onClick={handleComingSoon}>Villes</Button>
                 </div>
               </div>
             </Panel>
@@ -362,11 +396,11 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: strin
               <div className="space-y-4">
                 <div className="bg-black border border-gold-500/30 rounded-full px-5 py-3 flex items-center gap-3 text-text-muted">
                   <Briefcase size={16} className="text-gold-500" />
-                  <input type="text" className="bg-transparent border-none text-white w-full outline-none text-xs placeholder:text-white/20" placeholder="Restaurant, coiffeur, photographe..." onClick={() => onNavigate('search')} readOnly />
+                  <input type="text" className="bg-transparent border-none text-white w-full outline-none text-xs placeholder:text-white/20" placeholder="Restaurant, coiffeur, photographe..." onClick={handleComingSoon} readOnly />
                 </div>
                 <div className="flex gap-3">
-                  <Button variant="primary" className="flex-1 py-2.5 text-xs" onClick={() => onNavigate('search')}>Trouver un pro</Button>
-                  <Button variant="outline" className="flex-1 py-2.5 text-xs" onClick={() => onNavigate('search')}>Catégories</Button>
+                  <Button variant="primary" className="flex-1 py-2.5 text-xs" onClick={handleComingSoon}>Trouver un pro</Button>
+                  <Button variant="outline" className="flex-1 py-2.5 text-xs" onClick={handleComingSoon}>Catégories</Button>
                 </div>
               </div>
             </Panel>
@@ -546,38 +580,17 @@ const LoginSection = ({ onLoginSuccess }: { onLoginSuccess: () => void }) => {
 };
 
 const BoutiqueSection = () => {
-  const products = [
-    { id: 1, name: "Kofia Traditionnel", price: "45€", image: "https://picsum.photos/seed/kofia/400/400", description: "Kofia brodé à la main, qualité supérieure." },
-    { id: 2, name: "Lesso Comorien", price: "25€", image: "https://picsum.photos/seed/lesso/400/400", description: "Lesso traditionnel aux motifs authentiques." },
-    { id: 3, name: "Huile de Vanille", price: "15€", image: "https://picsum.photos/seed/vanilla/400/400", description: "Extrait de vanille pure des Comores." },
-    { id: 4, name: "Boubou de Cérémonie", price: "120€", image: "https://picsum.photos/seed/boubou/400/400", description: "Tenue complète pour vos événements." },
-  ];
-
   return (
-    <div className="max-w-6xl mx-auto space-y-12 pb-32">
-      <header className="hero space-y-4 text-center">
-        <h1 className="text-4xl font-bold gold-text tracking-tight uppercase">Boutique</h1>
-        <p className="text-text-muted text-lg">Découvrez nos produits artisanaux et traditionnels.</p>
-      </header>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {products.map(product => (
-          <div key={product.id} className="bg-gray-dark rounded-3xl panel-border overflow-hidden group hover:shadow-2xl hover:shadow-gold-500/10 transition-all duration-300">
-            <div className="aspect-square overflow-hidden">
-              <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="space-y-1">
-                <h3 className="text-lg font-bold group-hover:text-gold-500 transition-colors">{product.name}</h3>
-                <p className="text-gold-500 font-black text-xl">{product.price}</p>
-              </div>
-              <p className="text-xs text-text-muted line-clamp-2">{product.description}</p>
-              <Button variant="outline" className="w-full py-2.5 text-xs">
-                Ajouter au panier
-              </Button>
-            </div>
-          </div>
-        ))}
+    <div className="max-w-6xl mx-auto py-32 text-center space-y-6">
+      <div className="w-24 h-24 bg-gold-500/10 rounded-full flex items-center justify-center mx-auto text-gold-500">
+        <ShoppingBag size={48} />
+      </div>
+      <h1 className="text-4xl font-bold gold-text tracking-tight uppercase">Boutique</h1>
+      <p className="text-text-muted text-xl font-medium">Bientôt disponible</p>
+      <div className="max-w-md mx-auto p-6 bg-white/[0.03] rounded-3xl panel-border">
+        <p className="text-sm text-white/40 leading-relaxed">
+          Nous préparons une sélection exclusive de produits traditionnels et artisanaux pour vous. Revenez bientôt !
+        </p>
       </div>
     </div>
   );
@@ -807,6 +820,16 @@ const SearchSection = () => {
   const [pros, setPros] = useState<Professional[]>([]);
   const [assocs, setAssocs] = useState<Association[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showComingSoon, setShowComingSoon] = useState(false);
+
+  useEffect(() => {
+    if (showComingSoon) {
+      const timer = setTimeout(() => setShowComingSoon(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showComingSoon]);
+
+  const handleComingSoon = () => setShowComingSoon(true);
 
   useEffect(() => {
     const unsubPeople = onSnapshot(collection(db, 'users'), (snapshot) => {
@@ -897,7 +920,21 @@ const SearchSection = () => {
   }, [query, islandFilter, hasSearched, assocs]);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-10 pb-32">
+    <div className="max-w-5xl mx-auto space-y-10 pb-32 relative">
+      {/* Coming Soon Toast */}
+      <AnimatePresence>
+        {showComingSoon && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 20, x: '-50%' }}
+            className="fixed bottom-10 left-1/2 z-50 bg-gold-500 text-black px-6 py-3 rounded-full font-bold shadow-2xl flex items-center gap-2"
+          >
+            <Info size={18} /> Bientôt disponible
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <header className="hero space-y-4 text-center">
         <h1 className="text-4xl font-bold gold-text tracking-tight uppercase">Recherche</h1>
         <p className="text-text-muted text-lg">Trouvez des membres, des professionnels ou des associations.</p>
@@ -934,16 +971,21 @@ const SearchSection = () => {
               className="w-full bg-black border border-gold-500/30 rounded-full pl-12 pr-5 py-4 text-white focus:outline-none focus:border-gold-500 transition-colors text-sm"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onClick={handleComingSoon}
+              readOnly
             />
           </div>
-          <Select 
-            label="" 
-            options={['Grande Comore', 'Mayotte', 'Anjouan', 'Mohéli', 'Les 4 îles']}
-            value={islandFilter}
-            onChange={(e: any) => setIslandFilter(e.target.value)}
-          />
+          <div onClick={handleComingSoon} className="cursor-pointer">
+            <Select 
+              label="" 
+              options={['Grande Comore', 'Mayotte', 'Anjouan', 'Mohéli', 'Les 4 îles']}
+              value={islandFilter}
+              onChange={(e: any) => setIslandFilter(e.target.value)}
+              disabled
+            />
+          </div>
         </div>
-        <Button variant="primary" className="w-full mt-6" onClick={() => setHasSearched(true)}>
+        <Button variant="primary" className="w-full mt-6" onClick={handleComingSoon}>
           Lancer la recherche
         </Button>
       </Panel>
