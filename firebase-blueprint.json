@@ -1,0 +1,78 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Represents a member of the COM-NECT community.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "pseudo": { "type": "string", "description": "Unique username for the member" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "nickname": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "snapchat": { "type": "string" },
+        "instagram": { "type": "string" },
+        "tiktok": { "type": "string" },
+        "island": { "type": "string", "enum": ["Grande Comore", "Mayotte", "Anjouan", "Mohéli", "Les 4 îles"] },
+        "cityFrance": { "type": "string" },
+        "cityComoros": { "type": "string" },
+        "description": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"], "description": "User role for access control" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "pseudo", "email", "role"]
+    },
+    "Professional": {
+      "title": "Professional",
+      "description": "A professional or business listed on the platform.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "image": { "type": "string", "format": "uri" },
+        "description": { "type": "string" },
+        "website": { "type": "string", "format": "uri" },
+        "snapchat": { "type": "string" },
+        "instagram": { "type": "string" },
+        "tiktok": { "type": "string" },
+        "island": { "type": "string" },
+        "cityFrance": { "type": "string" },
+        "cityComoros": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "uid": { "type": "string", "description": "Owner UID" }
+      },
+      "required": ["name", "category", "island"]
+    },
+    "Event": {
+      "title": "Event",
+      "description": "A community event.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "date": { "type": "string" },
+        "location": { "type": "string" },
+        "description": { "type": "string" },
+        "image": { "type": "string", "format": "uri" },
+        "externalLink": { "type": "string", "format": "uri" }
+      },
+      "required": ["title", "date", "location"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Private user profiles"
+    },
+    "/professionals/{proId}": {
+      "schema": "Professional",
+      "description": "Public professional listings"
+    },
+    "/events/{eventId}": {
+      "schema": "Event",
+      "description": "Public community events"
+    }
+  }
+}

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Component, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Search, 
@@ -23,12 +23,82 @@ import {
   Phone,
   Send,
   User,
-  Lock
+  Lock,
+  LogOut
 } from 'lucide-react';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  onAuthStateChanged, 
+  signOut,
+  User as FirebaseUser 
+} from 'firebase/auth';
+import { 
+  collection, 
+  query, 
+  where, 
+  getDocs, 
+  doc, 
+  setDoc, 
+  onSnapshot,
+  orderBy,
+  Timestamp,
+  getDoc
+} from 'firebase/firestore';
+import { auth, db } from './firebase';
 import { MOCK_PEOPLE, MOCK_PROFESSIONALS, MOCK_EVENTS, MOCK_CITIES, MOCK_ASSOCIATIONS, MOCK_ADS } from './data';
 import { Island, Person, Professional, Event as ComEvent, City, Association, Ad } from './types';
 
 // --- Components ---
+
+class ErrorBoundary extends Component<any, any> {
+  state: any;
+  props: any;
+
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("ErrorBoundary caught an error", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      let errorMessage = "Une erreur inattendue est survenue.";
+      try {
+        const parsed = JSON.parse(this.state.error.message);
+        if (parsed.error && parsed.error.includes("Missing or insufficient permissions")) {
+          errorMessage = "Vous n'avez pas les permissions nécessaires pour effectuer cette action.";
+        }
+      } catch (e) {
+        // Not a JSON error
+      }
+
+      return (
+        <div className="min-h-screen bg-black flex items-center justify-center p-6 text-center">
+          <div className="max-w-md space-y-6">
+            <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto text-red-500">
+              <X size={40} />
+            </div>
+            <h1 className="text-2xl font-bold text-white">Oups !</h1>
+            <p className="text-text-muted">{errorMessage}</p>
+            <Button variant="primary" onClick={() => window.location.reload()}>
+              Recharger la page
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 const Button = ({ 
   children, 
@@ -203,49 +273,62 @@ const AdsCarousel = () => {
   );
 };
 
-const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: string; id: string }) => void }) => (
-  <div className="space-y-10 pb-24">
-    {/* Hero */}
-    <header className="hero flex flex-col items-center text-center space-y-6">
-      <div className="relative group">
-        <div className="absolute inset-0 bg-gold-500/20 blur-3xl rounded-full group-hover:bg-gold-500/30 transition-all duration-500" />
-        <div className="relative p-1.5 rounded-full bg-linear-to-br from-gold-300 via-gold-500 to-gold-700 shadow-2xl shadow-gold-500/30">
-          <img 
-            src="https://image.noelshack.com/fichiers/2026/16/3/1776267673-chatgpt-image-15-avr-2026-16-27-27.png" 
-            alt="Logo" 
-            className="w-32 h-32 md:w-40 md:h-40 object-contain rounded-full bg-black" 
-            referrerPolicy="no-referrer" 
-          />
-        </div>
-      </div>
-      <div className="space-y-2">
-        <h1 className="text-3xl md:text-4xl font-bold gold-text tracking-tight flex flex-col items-center">
-          <span>BIENVENUE SUR</span>
-          <span className="text-4xl md:text-5xl mt-2">COM-NECT</span>
-        </h1>
-        <p className="text-text-muted text-base max-w-2xl leading-relaxed mx-auto">
-          Reliez-vous à vos racines. Retrouvez vos proches de Grande-Comore, Mayotte, Anjouan et Mohéli partout en France.
-        </p>
-      </div>
-    </header>
+const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: string; id: string }) => void }) => {
+  const [events, setEvents] = useState<ComEvent[]>([]);
 
-    {/* Sponsored Ads Carousel */}
-    <AdsCarousel />
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'events'), (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+      setEvents(data);
+    }, (err) => handleFirestoreError(err, OperationType.LIST, 'events'));
+    return () => unsub();
+  }, []);
 
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-2 space-y-8">
-        <Panel title="prochains événements" action={<span className="bg-gold-500/10 text-gold-500 px-3 py-1 rounded-full text-[11px] font-bold uppercase cursor-pointer hover:bg-gold-500/20 transition-colors" onClick={() => onNavigate('events')}>Voir tout</span>}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {MOCK_EVENTS.slice(0, 4).map(event => (
-              <div key={event.id} className="bg-white/[0.03] rounded-2xl p-4 border-l-3 border-gold-500 space-y-2 group cursor-pointer hover:bg-white/[0.06] transition-all" onClick={() => onNavigate('events')}>
-                <span className="bg-gold-500/10 text-gold-500 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase">Évènement</span>
-                <h4 className="font-semibold text-base group-hover:text-gold-500 transition-colors">{event.title}</h4>
-                <div className="text-[11px] text-text-muted uppercase tracking-wider">{event.date} • {event.location}</div>
-                <p className="text-xs text-white/60 line-clamp-2 leading-relaxed">{event.description}</p>
-              </div>
-            ))}
+  const displayEvents = events.length > 0 ? events.slice(0, 4) : MOCK_EVENTS.slice(0, 4);
+
+  return (
+    <div className="space-y-10 pb-24">
+      {/* Hero */}
+      <header className="hero flex flex-col items-center text-center space-y-6">
+        <div className="relative group">
+          <div className="absolute inset-0 bg-gold-500/20 blur-3xl rounded-full group-hover:bg-gold-500/30 transition-all duration-500" />
+          <div className="relative p-1.5 rounded-full bg-linear-to-br from-gold-300 via-gold-500 to-gold-700 shadow-2xl shadow-gold-500/30">
+            <img 
+              src="https://image.noelshack.com/fichiers/2026/16/3/1776267673-chatgpt-image-15-avr-2026-16-27-27.png" 
+              alt="Logo" 
+              className="w-32 h-32 md:w-40 md:h-40 object-contain rounded-full bg-black" 
+              referrerPolicy="no-referrer" 
+            />
           </div>
-        </Panel>
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-3xl md:text-4xl font-bold gold-text tracking-tight flex flex-col items-center">
+            <span>BIENVENUE SUR</span>
+            <span className="text-4xl md:text-5xl mt-2">COM-NECT</span>
+          </h1>
+          <p className="text-text-muted text-base max-w-2xl leading-relaxed mx-auto">
+            Reliez-vous à vos racines. Retrouvez vos proches de Grande-Comore, Mayotte, Anjouan et Mohéli partout en France.
+          </p>
+        </div>
+      </header>
+
+      {/* Sponsored Ads Carousel */}
+      <AdsCarousel />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          <Panel title="prochains événements" action={<span className="bg-gold-500/10 text-gold-500 px-3 py-1 rounded-full text-[11px] font-bold uppercase cursor-pointer hover:bg-gold-500/20 transition-colors" onClick={() => onNavigate('events')}>Voir tout</span>}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {displayEvents.map(event => (
+                <div key={event.id} className="bg-white/[0.03] rounded-2xl p-4 border-l-3 border-gold-500 space-y-2 group cursor-pointer hover:bg-white/[0.06] transition-all" onClick={() => onNavigate('events')}>
+                  <span className="bg-gold-500/10 text-gold-500 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase">Évènement</span>
+                  <h4 className="font-semibold text-base group-hover:text-gold-500 transition-colors">{event.title}</h4>
+                  <div className="text-[11px] text-text-muted uppercase tracking-wider">{event.date} • {event.location}</div>
+                  <p className="text-xs text-white/60 line-clamp-2 leading-relaxed">{event.description}</p>
+                </div>
+              ))}
+            </div>
+          </Panel>
 
         <Panel title="Trouver un membre">
           <div className="space-y-4">
@@ -293,25 +376,96 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: strin
     </div>
   </div>
 );
+};
+
+// --- Error Handling ---
+
+enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId: string | undefined;
+    email: string | null | undefined;
+    emailVerified: boolean | undefined;
+    isAnonymous: boolean | undefined;
+  }
+}
+
+function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email,
+      emailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous,
+    },
+    operationType,
+    path
+  }
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+}
+
+// --- Sections ---
 
 const LoginSection = ({ onLoginSuccess }: { onLoginSuccess: () => void }) => {
   const [pseudo, setPseudo] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulation d'authentification
-    // Pour l'instant, on accepte n'importe quel pseudo/password non vide
-    if (pseudo.trim() && password.trim()) {
+    if (!pseudo.trim() || !password.trim()) {
+      setError('Veuillez entrer votre pseudo et mot de passe.');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      // 1. Trouver l'email associé au pseudo dans Firestore
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('pseudo', '==', pseudo.trim()));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        setError('Pseudo non trouvé.');
+        setLoading(false);
+        return;
+      }
+
+      const userData = querySnapshot.docs[0].data();
+      const email = userData.email;
+
+      // 2. Connexion avec Firebase Auth
+      await signInWithEmailAndPassword(auth, email, password);
+      
+      // 3. Session locale pour la persistance de 2h (optionnel si on utilise Auth state)
       const session = {
         pseudo,
         timestamp: Date.now()
       };
       localStorage.setItem('comnect_auth', JSON.stringify(session));
+      
       onLoginSuccess();
-    } else {
-      setError('Veuillez entrer votre pseudo et mot de passe.');
+    } catch (err: any) {
+      console.error(err);
+      setError('Identifiants incorrects ou erreur de connexion.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -339,6 +493,7 @@ const LoginSection = ({ onLoginSuccess }: { onLoginSuccess: () => void }) => {
                 onChange={(e) => setPseudo(e.target.value)}
                 className="w-full bg-black border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white outline-none focus:border-gold-500 transition-all"
                 placeholder="Votre pseudo"
+                disabled={loading}
               />
             </div>
           </div>
@@ -353,14 +508,15 @@ const LoginSection = ({ onLoginSuccess }: { onLoginSuccess: () => void }) => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-black border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white outline-none focus:border-gold-500 transition-all"
                 placeholder="••••••••"
+                disabled={loading}
               />
             </div>
           </div>
 
           {error && <p className="text-red-500 text-xs text-center font-medium">{error}</p>}
 
-          <Button variant="primary" className="w-full py-4 rounded-2xl text-base font-bold" type="submit">
-            Se connecter
+          <Button variant="primary" className="w-full py-4 rounded-2xl text-base font-bold" type="submit" disabled={loading}>
+            {loading ? 'Connexion...' : 'Se connecter'}
           </Button>
         </form>
 
@@ -709,10 +865,48 @@ const SearchSection = () => {
   const [query, setQuery] = useState('');
   const [islandFilter, setIslandFilter] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
+  const [people, setPeople] = useState<Person[]>([]);
+  const [pros, setPros] = useState<Professional[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    const unsubPeople = onSnapshot(collection(db, 'users'), (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+      // Map Firestore User to Person type for UI
+      const mapped = data.map((u: any) => ({
+        id: u.id,
+        firstName: u.firstName || u.pseudo,
+        lastName: u.lastName || '',
+        island: u.island as Island,
+        cityFrance: u.cityFrance || '',
+        cityComoros: u.cityComoros || '',
+        description: u.description || '',
+        socials: {
+          instagram: u.instagram,
+          snapchat: u.snapchat,
+          tiktok: u.tiktok
+        }
+      }));
+      setPeople(mapped);
+      setLoading(false);
+    }, (err) => handleFirestoreError(err, OperationType.LIST, 'users'));
+
+    const unsubPros = onSnapshot(collection(db, 'professionals'), (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+      setPros(data);
+    }, (err) => handleFirestoreError(err, OperationType.LIST, 'professionals'));
+
+    return () => {
+      unsubPeople();
+      unsubPros();
+    };
+  }, []);
 
   const peopleResults = useMemo(() => {
     if (!hasSearched) return [];
-    return MOCK_PEOPLE.filter(p => {
+    const source = people.length > 0 ? people : MOCK_PEOPLE;
+    return source.filter(p => {
       const matchesQuery = !query || 
         p.firstName.toLowerCase().includes(query.toLowerCase()) ||
         p.lastName.toLowerCase().includes(query.toLowerCase()) ||
@@ -724,11 +918,12 @@ const SearchSection = () => {
       
       return matchesQuery && matchesIsland;
     });
-  }, [query, islandFilter, hasSearched]);
+  }, [query, islandFilter, hasSearched, people]);
 
   const proResults = useMemo(() => {
     if (!hasSearched) return [];
-    return MOCK_PROFESSIONALS.filter(p => {
+    const source = pros.length > 0 ? pros : MOCK_PROFESSIONALS;
+    return source.filter(p => {
       const matchesQuery = !query || 
         p.name.toLowerCase().includes(query.toLowerCase()) ||
         p.category.toLowerCase().includes(query.toLowerCase()) ||
@@ -740,7 +935,7 @@ const SearchSection = () => {
       
       return matchesQuery && matchesIsland;
     });
-  }, [query, islandFilter, hasSearched]);
+  }, [query, islandFilter, hasSearched, pros]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-10 pb-32">
@@ -1069,6 +1264,18 @@ const CityDetailSection = ({ cityId, onBack }: { cityId: string; onBack: () => v
 };
 
 const EventsSection = () => {
+  const [events, setEvents] = useState<ComEvent[]>([]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'events'), (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+      setEvents(data);
+    }, (err) => handleFirestoreError(err, OperationType.LIST, 'events'));
+    return () => unsub();
+  }, []);
+
+  const displayEvents = events.length > 0 ? events : MOCK_EVENTS;
+
   return (
     <div className="max-w-5xl mx-auto space-y-10 pb-32">
       <div className="flex flex-col md:flex-row justify-between items-center gap-6">
@@ -1079,7 +1286,7 @@ const EventsSection = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {MOCK_EVENTS.map(event => (
+        {displayEvents.map(event => (
           <div key={event.id} className="bg-gray-dark rounded-[24px] panel-border overflow-hidden flex flex-col md:flex-row group cursor-pointer hover:shadow-2xl hover:shadow-gold-500/5 transition-all duration-300">
             <div className="w-full md:w-48 h-48 md:h-auto overflow-hidden">
               <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
@@ -1114,23 +1321,32 @@ export default function App() {
   const [view, setView] = useState<string | { type: string; id: string }>('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
 
-  // Check session on mount
+  // Firebase Auth Listener
   useEffect(() => {
-    const checkAuth = () => {
-      const sessionStr = localStorage.getItem('comnect_auth');
-      if (sessionStr) {
-        const session = JSON.parse(sessionStr);
-        const twoHours = 2 * 60 * 60 * 1000;
-        if (Date.now() - session.timestamp < twoHours) {
-          setIsAuthenticated(true);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      if (user) {
+        setIsAuthenticated(true);
+      } else {
+        // Fallback to local session check for the 2h requirement
+        const sessionStr = localStorage.getItem('comnect_auth');
+        if (sessionStr) {
+          const session = JSON.parse(sessionStr);
+          const twoHours = 2 * 60 * 60 * 1000;
+          if (Date.now() - session.timestamp < twoHours) {
+            setIsAuthenticated(true);
+          } else {
+            localStorage.removeItem('comnect_auth');
+            setIsAuthenticated(false);
+          }
         } else {
-          localStorage.removeItem('comnect_auth');
           setIsAuthenticated(false);
         }
       }
-    };
-    checkAuth();
+    });
+    return () => unsubscribe();
   }, []);
 
   const handleNavigate = (newView: string | { type: string; id: string }) => {
@@ -1138,9 +1354,9 @@ export default function App() {
     
     // Vérification de la session (2h)
     const sessionStr = localStorage.getItem('comnect_auth');
-    let isStillAuth = false;
+    let isStillAuth = isAuthenticated;
     
-    if (sessionStr) {
+    if (sessionStr && !isAuthenticated) {
       const session = JSON.parse(sessionStr);
       const twoHours = 2 * 60 * 60 * 1000;
       if (Date.now() - session.timestamp < twoHours) {
@@ -1158,6 +1374,13 @@ export default function App() {
       setView(newView);
     }
     setIsMenuOpen(false);
+  };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    localStorage.removeItem('comnect_auth');
+    setIsAuthenticated(false);
+    setView('home');
   };
 
   // Scroll to top on view change
@@ -1178,7 +1401,8 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-black font-sans overflow-x-hidden">
+    <ErrorBoundary>
+      <div className="min-h-screen flex flex-col md:flex-row bg-black font-sans overflow-x-hidden">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-[280px] bg-gray-dark sidebar-border flex-col p-10 justify-between sticky top-0 h-screen">
         <div className="space-y-12">
@@ -1206,6 +1430,11 @@ export default function App() {
         </div>
 
         <div className="space-y-4">
+          {isAuthenticated && (
+            <Button variant="outline" className="w-full border-red-500/30 text-red-500 hover:bg-red-500/5" onClick={handleLogout}>
+              <LogOut size={18} /> Déconnexion
+            </Button>
+          )}
           <Button variant="primary" className="w-full" onClick={handleWhatsAppContact}>
             WhatsApp Contact
           </Button>
@@ -1301,5 +1530,6 @@ export default function App() {
         ))}
       </nav>
     </div>
+    </ErrorBoundary>
   );
 }
