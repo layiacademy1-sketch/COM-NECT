@@ -405,13 +405,13 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: strin
               </div>
             </Panel>
 
-            <Panel title="BOUTIQUE" className="bg-linear-to-br from-gold-500/10 to-transparent border-gold-500/20">
+            <Panel title="LE BON COIN DES COMORES" className="bg-linear-to-br from-gold-500/10 to-transparent border-gold-500/20">
               <div className="space-y-4">
                 <p className="text-sm text-text-muted leading-relaxed">
-                  Découvrez notre sélection exclusive de produits traditionnels et artisanaux.
+                  Petites annonces, services et bonnes affaires entre membres de la communauté.
                 </p>
-                <Button variant="gold" className="w-full py-3 text-sm font-bold uppercase tracking-widest" onClick={() => onNavigate('boutique')}>
-                  Entrer dans la boutique
+                <Button variant="gold" className="w-full py-3 text-sm font-bold uppercase tracking-widest" onClick={handleComingSoon}>
+                  Entrer dans le Bon Coin
                 </Button>
               </div>
             </Panel>
@@ -424,6 +424,17 @@ const HomeSection = ({ onNavigate }: { onNavigate: (view: string | { type: strin
             <p className="text-xs text-text-muted">Une question ? Un partenariat ? Contactez-nous directement.</p>
             <Button variant="outline" className="w-full" onClick={() => window.open('https://wa.me/33757828250', '_blank')}>
               <MessageCircle size={18} /> WhatsApp Support
+            </Button>
+          </div>
+        </Panel>
+
+        <Panel title="LE BON COIN DES COMORES" className="hidden lg:flex bg-linear-to-br from-gold-500/5 to-transparent">
+          <div className="space-y-4">
+            <p className="text-xs text-text-muted leading-relaxed">
+              Retrouvez toutes les annonces de la communauté.
+            </p>
+            <Button variant="outline" className="w-full text-xs py-2" onClick={handleComingSoon}>
+              Accéder au Bon Coin
             </Button>
           </div>
         </Panel>
@@ -585,7 +596,7 @@ const BoutiqueSection = () => {
       <div className="w-24 h-24 bg-gold-500/10 rounded-full flex items-center justify-center mx-auto text-gold-500">
         <ShoppingBag size={48} />
       </div>
-      <h1 className="text-4xl font-bold gold-text tracking-tight uppercase">Boutique</h1>
+      <h1 className="text-4xl font-bold gold-text tracking-tight uppercase">Le Bon Coin des Comores</h1>
       <p className="text-text-muted text-xl font-medium">Bientôt disponible</p>
       <div className="max-w-md mx-auto p-6 bg-white/[0.03] rounded-3xl panel-border">
         <p className="text-sm text-white/40 leading-relaxed">
@@ -1395,7 +1406,7 @@ export default function App() {
     { id: 'home', label: 'Accueil', icon: Home },
     { id: 'search', label: 'Recherche', icon: Search },
     { id: 'events', label: 'Évènements', icon: Calendar },
-    { id: 'boutique', label: 'Boutique', icon: ShoppingBag },
+    { id: 'boutique', label: 'Le Bon Coin', icon: ShoppingBag },
     { id: 'register', label: "S'enregistrer", icon: UserPlus },
   ];
 
